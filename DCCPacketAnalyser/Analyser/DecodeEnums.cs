@@ -43,7 +43,8 @@ public enum DecoderMessageTypeEnum {
     FunctionGroupOne,
     FunctionGroupTwo,
     ExtendedFunctions,
-    ConfigurationVariables
+    ConfigurationVariables,
+    Error
 }
 
 public enum DecoderMessageSubTypeEnum {
@@ -53,16 +54,22 @@ public enum DecoderMessageSubTypeEnum {
     AnalogFunctionGroup,
     BinaryStateLong, 
     BinaryStateShort,
-    FunctionsF0_F4,
-    FunctionsF5_F8,
-    FunctionsF9_F12,
-    FunctionsF13_F20,
-    FunctionsF21_F28,
-    FunctionsF29_F36,
-    FunctionsF37_F44,
-    FunctionsF45_F52,
-    FunctionsF53_F60,
-    FunctionsF61_F68,
+    FunctionsF0F4,
+    FunctionsF5F8,
+    FunctionsF9F12,
+    FunctionsF13F20,
+    FunctionsF21F28,
+    FunctionsF29F36,
+    FunctionsF37F44,
+    FunctionsF45F52,
+    FunctionsF53F60,
+    FunctionsF61F68,
+    Acceleration,
+    Deceleration,
+    Lock,
+    VerifyCV,
+    WriteCV,
+    BitManipulate
     
 }
 

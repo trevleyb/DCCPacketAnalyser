@@ -6,16 +6,18 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class DecoderPacket : PacketMessage, IPacketMessage {
 
-    public SpeedStepsEnum            SpeedSteps            { get; set; }
-    public ControlMessageTypeEnum    ControlMessageType    { get; set; }
-    public DecoderMessageTypeEnum    DecoderMessageType    { get; set; }
-    public DecoderMessageSubTypeEnum DecoderMessageSubType { get; set; }
-    public DirectionEnum             Direction             { get; set; }
-    public int                       ConsistAddress        { get; set; }
-    public byte                      Speed                 { get; set; }
-    public bool                      RestrictedSpeed       { get; set; }
-    public byte                      SpeedStepsData        { get; set; }
-    public bool[]                    Functions             { get; set; } = new bool[69];
+    public SpeedStepsEnum            SpeedSteps            { get; private set; }
+    public ControlMessageTypeEnum    ControlMessageType    { get; private set; }
+    public DecoderMessageTypeEnum    DecoderMessageType    { get; private set; }
+    public DecoderMessageSubTypeEnum DecoderMessageSubType { get; private set; }
+    public DirectionEnum             Direction             { get; private set; }
+    public int                       ConsistAddress        { get; private set; }
+    public byte                      Speed                 { get; private set; }
+    public bool                      RestrictedSpeed       { get; private set; }
+    public byte                      SpeedStepsData        { get; private set; }
+    public bool[]                    Functions             { get; private set; } = new bool[69];
+    public int                       CvNumber              { get; private set; }
+    public byte                      CvValue               { get; private set; }
 
     public DecoderPacket(PacketData packetData, AddressTypeEnum addressType, int address) : base(packetData) {
         Address = address;
@@ -130,7 +132,6 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
             DecoderMessageSubType = DecoderMessageSubTypeEnum.Reserved;
             break;
         }
-
         return DecoderMessageTypeEnum.AdvancedOperation;
     }
 
@@ -141,7 +142,6 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
             255        => DirectionEnum.EStop,
             _          => DirectionEnum.Reverse
         };
-
         return DecoderMessageTypeEnum.SpeedAndDirectionForReverse;
     }
 
@@ -152,7 +152,6 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
             255        => DirectionEnum.EStop,
             _          => DirectionEnum.Forward
         };
-
         return DecoderMessageTypeEnum.SpeedAndDirectionForForward;
     }
 
@@ -166,19 +165,18 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
         // Loc Function L-4-3-2-1
         SetFunction(dataByte, 1, 4);
         Functions[0] = dataByte.GetBit(4);
-        DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF0_F4;
+        DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF0F4;
         return DecoderMessageTypeEnum.FunctionGroupOne;
     }
 
     internal DecoderMessageTypeEnum FunctionGroupTwoInstructions(byte dataByte) {
         if (dataByte.GetBit(4)) { // F5-F8
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF5_F8;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF5F8;
             SetFunction(dataByte, 5, 8);
         } else { // F9-F12
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF9_F12;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF9F12;
             SetFunction(dataByte, 9, 12);
         }
-
         return DecoderMessageTypeEnum.FunctionGroupTwo;
     }
 
@@ -193,39 +191,89 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
             break;
         case 0b11110: // F13-F20
             SetFunction(dataByte, 13, 20);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF13_F20;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF13F20;
             break;
         case 0b11111: // F21-F28
             SetFunction(dataByte, 21, 28);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF21_F28;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF21F28;
             break;
         case 0b11000: // F29-F36
             SetFunction(dataByte, 29, 36);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF29_F36;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF29F36;
             break;
         case 0b11001: // F37-F44
             SetFunction(dataByte, 37, 44);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF37_F44;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF37F44;
             break;
         case 0b11010: // F45-F52 
             SetFunction(dataByte, 45, 52);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF45_F52;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF45F52;
             break;
         case 0b11011: // F53-F60 
             SetFunction(dataByte, 53, 60);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF53_F60;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF53F60;
             break;
         case 0b11100: // F61-F68 
             SetFunction(dataByte, 61, 68);
-            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF61_F68;
+            DecoderMessageSubType = DecoderMessageSubTypeEnum.FunctionsF61F68;
             break;
         }
-
         return DecoderMessageTypeEnum.ExtendedFunctions;
     }
 
     internal DecoderMessageTypeEnum ConfigurationVariableAccess(byte dataByte) {
-
+        // Format for short form is 1111CCCC DDDDDDDD
+        // Format for long form is 1110CCVV VVVVVVVV DDDDDDDD
+        switch (dataByte & 11110000) {
+        case 0b11110000:
+            switch (dataByte & 0b00001111) {
+            case 0b0000:
+                return DecoderMessageTypeEnum.Error;
+            case 0b0010:
+                CvNumber              = 23;
+                CvValue               = PacketData.GetNext();
+                DecoderMessageSubType = DecoderMessageSubTypeEnum.Acceleration;
+                break;
+            case 0b0011:
+                CvNumber              = 24;
+                CvValue               = PacketData.GetNext();
+                DecoderMessageSubType = DecoderMessageSubTypeEnum.Deceleration;
+                break;
+            case 0b1001:
+                CvNumber              = 0;
+                CvValue               = PacketData.GetNext();
+                DecoderMessageSubType = DecoderMessageSubTypeEnum.Lock;
+                break;
+            default:
+                return DecoderMessageTypeEnum.Error;
+            }
+            break;
+        case 0b11100000:
+            switch (dataByte & 0b00001100) {
+            case 0b00:
+                return DecoderMessageTypeEnum.Error;
+            case 0b01:
+                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.GetNext();
+                CvValue               = PacketData.GetNext();
+                DecoderMessageSubType = DecoderMessageSubTypeEnum.VerifyCV;
+                break;
+            case 0b11:
+                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.GetNext();
+                CvValue               = PacketData.GetNext();
+                DecoderMessageSubType = DecoderMessageSubTypeEnum.WriteCV;
+                break;
+            case 0b10:
+                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.GetNext();
+                CvValue               = PacketData.GetNext();
+                DecoderMessageSubType = DecoderMessageSubTypeEnum.BitManipulate;
+                break;
+            default:
+                return DecoderMessageTypeEnum.Error;
+            }
+            break;
+        default:
+            return DecoderMessageTypeEnum.Error;
+        }
         return DecoderMessageTypeEnum.ConfigurationVariables;
     }
 }

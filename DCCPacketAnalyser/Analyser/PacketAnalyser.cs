@@ -5,7 +5,7 @@ using DCCPacketAnalyser.Analyser.Messages;
 
 namespace DCCPacketAnalyser.Analyser;
 
-public class PacketAnalyser {
+public static class PacketAnalyser {
 
     public static IPacketMessage Decode(byte[] packet) {
         return Decode(new PacketData(packet));
