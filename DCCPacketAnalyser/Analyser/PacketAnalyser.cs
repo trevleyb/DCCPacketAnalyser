@@ -43,7 +43,7 @@ public static class PacketAnalyser {
         var dataByte = packetData.GetNext();      // Get Byte #2
 
         if (typeByte == 0b11111111) return new IdlePacket(packetData);
-        if (typeByte == 0b00000000) return new BroadcastPacket(packetData);
+        if (typeByte == 0b00000000) return new DecoderPacket(packetData, AddressTypeEnum.Broadcast, 0);
         
         // Short Address Decoder is represented as 00xxxxx0 where xxxxx0 is the address
         // -------------------------------------------------------------------------------------

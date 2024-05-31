@@ -22,7 +22,8 @@ public enum AccessoryStateEnum {
     On       = 1
 }
 
-public enum ControlMessageTypeEnum {
+public enum DecoderMessageTypeEnum {
+    Error,
     None,
     Reserved,
     DecoderAck,
@@ -31,24 +32,10 @@ public enum ControlMessageTypeEnum {
     Reset,
     HardReset,
     FactoryTest,
-    Error,
-    Consist
-}
-
-public enum DecoderMessageTypeEnum {
+    ConsistControl,
     DecoderAndConsist,
     AdvancedOperation,
-    SpeedAndDirectionForReverse,
-    SpeedAndDirectionForForward,
-    FunctionGroupOne,
-    FunctionGroupTwo,
-    ExtendedFunctions,
-    ConfigurationVariables,
-    Error
-}
-
-public enum DecoderMessageSubTypeEnum {
-    Reserved, 
+    SpeedAndDirection,
     SpeedStepControl, 
     RestrictedSpeedStep,
     AnalogFunctionGroup,
@@ -67,10 +54,9 @@ public enum DecoderMessageSubTypeEnum {
     Acceleration,
     Deceleration,
     Lock,
-    VerifyCV,
-    WriteCV,
+    VerifyCv,
+    WriteCv,
     BitManipulate
-    
 }
 
 
