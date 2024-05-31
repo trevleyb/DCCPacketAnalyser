@@ -10,3 +10,7 @@ analyser) and then use that to feed into the Railway Controller I am building so
 messages send from other devices will be detected and reported on (NCE does not report
 through the RS232 port or USB port messages that are put onto the bus through other 
 devices.)
+
+Some credit to the DCCInspector-EX project which assisted in a couple of areas where the 
+MNRA specifications were not clear.  https://github.com/DCC-EX/DCCInspector-EX 
+
