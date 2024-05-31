@@ -14,10 +14,9 @@ public static class PacketAnalyser {
     public static IPacketMessage Decode(PacketData packet) {
 
         // Start by working out what type of Address the packet is addressed to
-        // Note that a Signal will come back as an Accessory and will be updated
-        // when the data is decoded. The address will also change after the Data
-        // decode part of the process. 
-        // --------------------------------------------------------------------
+        // and return an instance/object that represents the type of thing we are 
+        // sending messages to. Then, decode the rest of the message in that object. 
+        // ----------------------------------------------------------------------------
         try {
             var decodedPacket = DeterminePacketType(packet);
             decodedPacket.ProcessRemainingPacket();
