@@ -29,7 +29,7 @@ public static class PacketAnalyser {
     // Look at the first and second bytes and work out the type of address 
     // and what the actual address is. The first bits of the first byte of the 
     // packet determines the type and that also determines if we need the 2nd 
-    // byte of the packet to calculate the addrress. 
+    // byte of the packet to calculate the address. 
     // This also increments the 'offset' so that we can proceed to use byte 2 or 3
     // in future calculations. 
     internal static IPacketMessage DeterminePacketType(PacketData packetData) {
