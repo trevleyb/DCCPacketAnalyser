@@ -11,10 +11,10 @@ public class SignalPacket : PacketMessage, IPacketMessage {
         Aspect      = SignalAspectEnums.AllOff;
     }
     
-    public override string ToString() => $"SIGNAL: Address={Address} Aspect={Aspect}";
+    public override string ToString() => $"SIGNAL: Address={Address} Aspect={Aspect} ({(int)Aspect})";
 
     public void ProcessRemainingPacket() {
-        var dataByte = PacketData.GetNext();
+        var dataByte = PacketData.Next();
         if (!dataByte.GetBit(7)) { // Basic Accessory Decoder
             Aspect = (SignalAspectEnums)(byte)(dataByte & 0b00011111);
         } else {

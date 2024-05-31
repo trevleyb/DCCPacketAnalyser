@@ -105,10 +105,11 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
         // Decoder Control is in the form CCCDDDDD where 
         // CCC = command and DDDDD = dfata to apply
         // ------------------------------------------------------------
-        var instrByte = (byte)(PacketData.GetCurrent() & 0b11100000) >> 5;
-        var dataByte = (byte)(PacketData.GetCurrent() & 0b00011111);
+        var instByte = PacketData.Next();
+        var cmdByte  = (byte)(instByte & 0b11100000) >> 5;
+        var dataByte = (byte)(instByte & 0b00011111);
 
-        DecoderMessageType = instrByte switch {
+        DecoderMessageType = cmdByte switch {
             0b00000000 => DecoderAndConsistControl(dataByte),
             0b00000001 => AdvancedOperationInstructions(dataByte),
             0b00000010 => SpeedAndDirectionForReverse(dataByte),
@@ -142,11 +143,11 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
         } else {
             switch (dataByte & 0b00001111) {
             case 0b0010:
-                ConsistAddress     = PacketData.GetNext() & 0b01111111;
+                ConsistAddress     = PacketData.Next() & 0b01111111;
                 Direction          = DirectionEnum.Forward;
                 return DecoderMessageTypeEnum.ConsistControl;
             case 0b0011:
-                ConsistAddress     = PacketData.GetNext() & 0b01111111;
+                ConsistAddress     = PacketData.Next() & 0b01111111;
                 Direction          = DirectionEnum.Forward;
                 return DecoderMessageTypeEnum.ConsistControl;
             default:
@@ -159,7 +160,7 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
     internal DecoderMessageTypeEnum AdvancedOperationInstructions(byte dataByte) {
         switch (dataByte) {
         case 0b00111111: // 128 Speed Step Control
-            Speed = (byte)(PacketData.GetNext() & 0b01111111);
+            Speed = (byte)(PacketData.Next() & 0b01111111);
             switch (Speed) {
             case 0:
                 Direction = DirectionEnum.Stop;
@@ -170,13 +171,13 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
                 break;
             default:
                 Speed -= 1;
-                Direction = PacketData.GetNext().GetBit(7) ? DirectionEnum.Forward : DirectionEnum.Reverse;
+                Direction = PacketData.Next().GetBit(7) ? DirectionEnum.Forward : DirectionEnum.Reverse;
                 break;
             }
             return DecoderMessageTypeEnum.SpeedAndDirection;
         case 0b00111110: // Restricted Speed Step
-            SpeedStepsData = (byte)(PacketData.GetNext() & 0b01111111);
-            RestrictedSpeed = PacketData.GetCurrent().GetBit(7);
+            SpeedStepsData = (byte)(PacketData.Next() & 0b01111111);
+            RestrictedSpeed = PacketData.Current().GetBit(7);
             break;
         case 0b00111101: // Analog Function Group
             break;
@@ -228,7 +229,7 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
     }
 
     internal DecoderMessageTypeEnum ExtendedFunctions(byte instByte) {
-        var dataByte = PacketData.GetNext();
+        var dataByte = PacketData.Next();
         switch (instByte & 0b00011111) {
         case 0b00000: // Binary State Control Long Form
             return DecoderMessageTypeEnum.BinaryStateLong;
@@ -269,15 +270,15 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
                 return DecoderMessageTypeEnum.Error;
             case 0b0010:
                 CvNumber              = 23;
-                CvValue               = PacketData.GetNext();
+                CvValue               = PacketData.Next();
                 return DecoderMessageTypeEnum.Acceleration;
             case 0b0011:
                 CvNumber              = 24;
-                CvValue               = PacketData.GetNext();
+                CvValue               = PacketData.Next();
                 return DecoderMessageTypeEnum.Deceleration;
             case 0b1001:
                 CvNumber              = 0;
-                CvValue               = PacketData.GetNext();
+                CvValue               = PacketData.Next();
                 return DecoderMessageTypeEnum.Lock;
             default:
                 return DecoderMessageTypeEnum.Error;
@@ -287,16 +288,16 @@ public class DecoderPacket : PacketMessage, IPacketMessage {
             case 0b00:
                 return DecoderMessageTypeEnum.Error;
             case 0b01:
-                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.GetNext();
-                CvValue               = PacketData.GetNext();
+                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.Next();
+                CvValue               = PacketData.Next();
                 return DecoderMessageTypeEnum.VerifyCv;
             case 0b11:
-                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.GetNext();
-                CvValue               = PacketData.GetNext();
+                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.Next();
+                CvValue               = PacketData.Next();
                 return DecoderMessageTypeEnum.WriteCv;
             case 0b10:
-                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.GetNext();
-                CvValue               = PacketData.GetNext();
+                CvNumber              = ((dataByte & 00000011) << 8) | PacketData.Next();
+                CvValue               = PacketData.Next();
                 return DecoderMessageTypeEnum.BitManipulate;
             default:
                 return DecoderMessageTypeEnum.Error;

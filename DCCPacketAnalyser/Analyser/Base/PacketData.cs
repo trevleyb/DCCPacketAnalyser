@@ -14,7 +14,7 @@ public class PacketData {
     /// Get the next Packet in the sequence of packets and increment the offset counter
     /// </summary>
     /// <returns>A byte being the next byte in the packet</returns>
-    public byte GetNext() {
+    public byte Next() {
         if (_currentOffset < 0) _currentOffset = 0;
         else _currentOffset++;
         return GetAt(_currentOffset);
@@ -24,16 +24,34 @@ public class PacketData {
     /// Get the packet byte that we are currently pointing to
     /// </summary>
     /// <returns>A byte being the current packet offset byte</returns>
-    public byte GetCurrent() {
-        return _currentOffset < 0 ? GetNext() : GetAt(_currentOffset);
+    public byte Current() {
+        return _currentOffset < 0 ? Next() : GetAt(_currentOffset);
+    }
+
+    /// <summary>
+    /// Get the packet byte that we are currently pointing to
+    /// </summary>
+    /// <returns>A byte being the current packet offset byte</returns>
+    public byte First() {
+        Reset();
+        return Next();
     }
 
     /// <summary>
     /// Look forward 1 element in the packet array but do not increment the packet counter
     /// </summary>
     /// <returns>A byte being the next packet in the array</returns>
-    public byte PeekNext() {
-        return GetAt(_currentOffset++);
+    public byte Peek() {
+        return GetAt(_currentOffset+1);
+    }
+
+    /// <summary>
+    /// Skip the next byte in the packet and return the one following
+    /// </summary>
+    /// <returns>A byte being the next packet in the array</returns>
+    public byte Skip() {
+        Next();
+        return Next();
     }
 
     /// <summary>

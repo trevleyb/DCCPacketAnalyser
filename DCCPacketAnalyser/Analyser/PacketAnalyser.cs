@@ -39,8 +39,8 @@ public static class PacketAnalyser {
         // --------------------------------------------------------------------------
         if (!packetData.IsAtLeastLength(2)) throw new IndexOutOfRangeException("Packet size is < 2 so is an invalid packet.");
         
-        var typeByte = packetData.GetNext();      // Get Byte #1
-        var dataByte = packetData.GetNext();      // Get Byte #2
+        var typeByte = packetData.First();   // Get Byte #1
+        var dataByte = packetData.Peek();   // Get Byte #2 but leave it ready for further processing.
 
         if (typeByte == 0b11111111) return new IdlePacket(packetData);
         if (typeByte == 0b00000000) return new DecoderPacket(packetData, AddressTypeEnum.Broadcast, 0);
@@ -53,13 +53,15 @@ public static class PacketAnalyser {
         } 
         
         // Long Address Decoder is represented by 10xxxxxx - xxxxxx is high range of the address
+        // Note: 2nd byte is used up, so increment packet byte pointer. 
         // -------------------------------------------------------------------------------------
         if (typeByte.GetBit(7) && typeByte.GetBit(6)) {
-            var address = 256 * (typeByte & 0b00111111) + dataByte;
+            var address = 256 * (typeByte & 0b00111111) + packetData.Next();
             return new DecoderPacket(packetData, AddressTypeEnum.Long, address);
         } 
         
         // Accessory is represented by 10xxxxxx 1xxxxxxx 
+        // Note: 2nd byte is reused in the subsequent processing so don't increment next packet pointer
         // -------------------------------------------------------------------------------------
         if (typeByte.GetBit(7) && !typeByte.GetBit(6) && dataByte.GetBit(7)) {
             var address = ((~dataByte & 0b01110000) << 2) | (typeByte & 0b00111111);
@@ -75,6 +77,7 @@ public static class PacketAnalyser {
             var address = ((~dataByte & 0b01110000) << 2) | (typeByte & 0b00111111);
             var extrByte = (dataByte & 0b00000110) >> 1;
             address = (((address - 1) << 2) | extrByte) + 1;
+            packetData.Next(); // Move pointer along
             return new SignalPacket(packetData, address);
         } 
         return new ErrorPacket(packetData, "Unable to determine the type of packet.");

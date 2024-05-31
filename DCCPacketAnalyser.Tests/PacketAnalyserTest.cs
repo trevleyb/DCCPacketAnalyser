@@ -18,6 +18,8 @@ public class PacketAnalyserTest {
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(addressType));
         Assert.That(decoded.Address, Is.EqualTo(address));
+        
+        Console.WriteLine(decoded.ToString());
     }
     
     [TestCase(new byte[] {0x81,0xF9,0x78}, 1, AccessoryStateEnum.Normal)]
@@ -31,7 +33,7 @@ public class PacketAnalyserTest {
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(AddressTypeEnum.Accessory));
         Assert.That(decoded.Address, Is.EqualTo(address));
-        //Assert.That(decoded.State,Is.EqualTo(state));
+        Console.WriteLine(decoded.ToString());
     }
 
     [TestCase(new byte[] {0x81,0x71,0x0A,0xFA}, 1, 10)]
@@ -46,7 +48,8 @@ public class PacketAnalyserTest {
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(AddressTypeEnum.Signal));
         Assert.That(decoded.Address, Is.EqualTo(address));
-        //Assert.That(decoded.Aspect,Is.EqualTo(aspect));
+        Assert.That(((SignalPacket)decoded).Aspect, Is.EqualTo((SignalAspectEnums)aspect));
+        Console.WriteLine(decoded.ToString());
     }
 
     [TestCase(new byte[] { 0x81, 0x71, 0x0A, 0xFA })]

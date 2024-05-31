@@ -14,7 +14,7 @@ public class AccessoryPacket : PacketMessage, IPacketMessage {
     public override string ToString() => $"ACCESSORY: Address={Address} State={State}";
 
     public void ProcessRemainingPacket() {
-        var dataByte = PacketData.GetNext();
+        var dataByte = PacketData.Next();
         if (dataByte.GetBit(7)) { // Basic Accessory Decoder
             var activated = dataByte.GetBit(3);
             var newAddress = (((dataByte >> 4) & 0b00000111) << 6) | Address;
