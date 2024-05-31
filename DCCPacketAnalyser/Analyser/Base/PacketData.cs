@@ -1,22 +1,25 @@
 namespace DCCPacketAnalyser.Analyser.Base;
 
 public class PacketData {
-
     private readonly byte[] _packetData;
-    private int    _currentOffset = -1;
+    private          int    _currentOffset = -1;
 
     public PacketData(byte[] packetData) {
         _packetData = packetData;
         if (!IsValidPacket) throw new Exception("Packet Data is invalid.");
     }
-    
+
     /// <summary>
     /// Get the next Packet in the sequence of packets and increment the offset counter
     /// </summary>
     /// <returns>A byte being the next byte in the packet</returns>
     public byte Next() {
-        if (_currentOffset < 0) _currentOffset = 0;
-        else _currentOffset++;
+        if (_currentOffset < 0) {
+            _currentOffset = 0;
+        } else {
+            _currentOffset++;
+        }
+
         return GetAt(_currentOffset);
     }
 
@@ -42,7 +45,7 @@ public class PacketData {
     /// </summary>
     /// <returns>A byte being the next packet in the array</returns>
     public byte Peek() {
-        return GetAt(_currentOffset+1);
+        return GetAt(_currentOffset + 1);
     }
 
     /// <summary>
@@ -57,8 +60,10 @@ public class PacketData {
     /// <summary>
     /// Resets the packet offset pointer to 0;
     /// </summary>
-    public void Reset() => _currentOffset = -1; 
-    
+    public void Reset() {
+        _currentOffset = -1;
+    }
+
     /// <summary>
     /// Gets a byte from the Packet Data but ensures that the byte exists first
     /// </summary>
@@ -67,7 +72,7 @@ public class PacketData {
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public byte GetAt(int offset) {
         if (_packetData.Length > offset) return _packetData[offset];
-        throw new ArgumentOutOfRangeException(nameof(offset),"Invalid Packet: Not enough Packet Data for provided Offset.");
+        throw new ArgumentOutOfRangeException(nameof(offset), "Invalid Packet: Not enough Packet Data for provided Offset.");
     }
 
     /// <summary>
@@ -75,8 +80,10 @@ public class PacketData {
     /// </summary>
     /// <param name="length"></param>
     /// <returns></returns>
-    public bool IsAtLeastLength(int length) => _packetData.Length >= length;
-    
+    public bool IsAtLeastLength(int length) {
+        return _packetData.Length >= length;
+    }
+
     /// <summary>
     /// Check if the packet is valid by performing a checksum calculation.
     /// XOR bytes 1 & 2 and then XOR the result with the next byte through
@@ -85,7 +92,7 @@ public class PacketData {
     /// </summary>
     /// <returns>True if the packet is valid, otherwise false</returns>
     public bool IsValidPacket => _packetData.Aggregate(0, (current, t) => current ^ t) == 0;
-    
+
     /// <summary>
     /// Return the Packet Data as a set of Binary Numbers separated by -
     /// </summary>

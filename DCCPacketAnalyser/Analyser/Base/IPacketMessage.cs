@@ -5,5 +5,5 @@ namespace DCCPacketAnalyser.Analyser.Base;
 public interface IPacketMessage {
     int             Address     { get; }
     AddressTypeEnum AddressType { get; }
-    void ProcessRemainingPacket();
+    void            ProcessRemainingPacket();
 }

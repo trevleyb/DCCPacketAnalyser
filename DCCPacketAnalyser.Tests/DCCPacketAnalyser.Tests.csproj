@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DCCPacketAnalyser\DCCPacketAnalyser.csproj" />
+        <ProjectReference Include="..\DCCPacketAnalyser\DCCPacketAnalyser.csproj"/>
     </ItemGroup>
 
 </Project>

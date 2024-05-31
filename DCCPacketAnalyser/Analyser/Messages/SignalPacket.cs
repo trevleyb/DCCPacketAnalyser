@@ -5,13 +5,16 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class SignalPacket : PacketMessage, IPacketMessage {
     public SignalAspectEnums Aspect { get; set; }
+
     public SignalPacket(PacketData packetData, int address) : base(packetData) {
         Address     = address;
         AddressType = AddressTypeEnum.Signal;
         Aspect      = SignalAspectEnums.AllOff;
     }
-    
-    public override string ToString() => $"SIGNAL: Address={Address} Aspect={Aspect} ({(int)Aspect})";
+
+    public override string ToString() {
+        return $"SIGNAL: Address={Address} Aspect={Aspect} ({(int)Aspect})";
+    }
 
     public void ProcessRemainingPacket() {
         var dataByte = PacketData.Next();

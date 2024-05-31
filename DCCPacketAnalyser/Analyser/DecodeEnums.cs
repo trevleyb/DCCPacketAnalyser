@@ -1,14 +1,14 @@
 namespace DCCPacketAnalyser.Analyser;
 
 public enum SpeedStepsEnum {
-    Unknown = 0,
-    Steps14 = 14,
-    Steps28 = 28, 
+    Unknown  = 0,
+    Steps14  = 14,
+    Steps28  = 28,
     Steps128 = 128
 }
 
 public enum DirectionEnum {
-    Forward, 
+    Forward,
     Reverse,
     Stop,
     EStop,
@@ -18,7 +18,7 @@ public enum DirectionEnum {
 public enum AccessoryStateEnum {
     Normal   = 0,
     Reversed = 1,
-    Off      = 0, 
+    Off      = 0,
     On       = 1
 }
 
@@ -27,19 +27,17 @@ public enum DecoderMessageTypeEnum {
     None,
     Reserved,
     DecoderAck,
-    DecoderFlags, 
+    DecoderFlags,
     AdvancedAddressing,
     Reset,
     HardReset,
     FactoryTest,
     ConsistControl,
     DecoderAndConsist,
-    AdvancedOperation,
     SpeedAndDirection,
-    SpeedStepControl, 
+    SpeedStepControl,
     RestrictedSpeedStep,
-    AnalogFunctionGroup,
-    BinaryStateLong, 
+    BinaryStateLong,
     BinaryStateShort,
     FunctionsF0F4,
     FunctionsF5F8,
@@ -59,36 +57,33 @@ public enum DecoderMessageTypeEnum {
     BitManipulate
 }
 
-
 public enum AddressTypeEnum {
-    Unknown,
     Idle,
     Broadcast,
     Short,
-    Long, 
+    Long,
     Accessory,
     Signal,
     Error,
-    Control
 }
 
 public enum SignalAspectEnums {
-    Red             = 0,
-    Yellow          = 1,
-    Green           = 2,
-    FlashRed        = 3,
-    FlashYellow     = 4,
-    FlashGreen      = 5,
-    RedYellow       = 6,
-    FlashRedYellow  = 7,
-    RedFlashYellow  = 8,
-    RedGreen        = 9,
-    FlashRedGreen   = 10,
-    RedFlashGreen   = 11,
-    YellowGreen     = 12,
+    Red              = 0,
+    Yellow           = 1,
+    Green            = 2,
+    FlashRed         = 3,
+    FlashYellow      = 4,
+    FlashGreen       = 5,
+    RedYellow        = 6,
+    FlashRedYellow   = 7,
+    RedFlashYellow   = 8,
+    RedGreen         = 9,
+    FlashRedGreen    = 10,
+    RedFlashGreen    = 11,
+    YellowGreen      = 12,
     FlashYellowGreen = 13,
     YellowFlashGreen = 14,
-    AllOn           = 15,
-    AllFlash        = 30,
-    AllOff          = 31
+    AllOn            = 15,
+    AllFlash         = 30,
+    AllOff           = 31
 }

@@ -11,13 +11,16 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 /// <param name="packet">The original packet data</param>
 public class ErrorPacket : PacketMessage, IPacketMessage {
     public string Message { get; set; } = string.Empty;
-    public ErrorPacket(PacketData packetData, string message) : base (packetData) {
+
+    public ErrorPacket(PacketData packetData, string message) : base(packetData) {
         Address     = 0;
         AddressType = AddressTypeEnum.Error;
         Message     = message;
     }
-    
-    public override string ToString() => $"ERROR: Message='{Message}'";
-    public          void   ProcessRemainingPacket() { }
 
+    public override string ToString() {
+        return $"ERROR: Message='{Message}'";
+    }
+
+    public void ProcessRemainingPacket() { }
 }

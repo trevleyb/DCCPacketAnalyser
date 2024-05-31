@@ -14,9 +14,12 @@ public static class ExtensionMethods {
         if (pos < 0 || pos > 7) throw new IndexOutOfRangeException("Bit position should be 0..7");
 
         if (value) //left-shift 1, then bitwise OR
+        {
             bits = (byte)(bits | (1 << pos));
-        else //left-shift 1, then take complement, then bitwise AND
+        } else //left-shift 1, then take complement, then bitwise AND
+        {
             bits = (byte)(bits & ~(1 << pos));
+        }
 
         return bits;
     }
@@ -28,6 +31,7 @@ public static class ExtensionMethods {
             sb.Append(bits.GetBit(i) ? "1" : "0");
             sb.Append('-');
         }
+
         sb.Append(bits.GetBit(0) ? "1" : "0");
         return sb.ToString();
     }
@@ -78,14 +82,14 @@ public static class ExtensionMethods {
         if (bytes.Any(c => !Uri.IsHexDigit(c))) return new byte[] { 00 };
         return bytes.Length % 2 == 0 ? Enumerable.Range(0, bytes.Length / 2).Select(i => Convert.ToByte(bytes.Substring(i * 2, 2), 16)).ToArray() : new byte[] { 00 };
     }
-    
+
     public static byte[] ToHexArray(this byte[] bytes) {
         // If we pass through the data as an array of bytes, assume that each 
         // pair of bytes is actually the Hex data, and we need to take each pair
         // combine them and then convert to Hex. 
         return bytes.FromByteArray().ToHexArray();
     }
-    
+
     public static string FromByteArray(this byte[]? bytes) {
         return bytes == null ? "" : Encoding.Default.GetString(bytes);
     }

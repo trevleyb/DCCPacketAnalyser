@@ -4,12 +4,14 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class IdlePacket : PacketMessage, IPacketMessage {
-    public IdlePacket(PacketData packetData) : base (packetData) {
+    public IdlePacket(PacketData packetData) : base(packetData) {
         Address     = 0;
         AddressType = AddressTypeEnum.Idle;
     }
-    
-    public override string ToString() => $"IDLE Packet";
-    public          void   ProcessRemainingPacket() { }
 
+    public override string ToString() {
+        return $"IDLE Packet";
+    }
+
+    public void ProcessRemainingPacket() { }
 }
