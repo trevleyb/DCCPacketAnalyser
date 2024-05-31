@@ -21,4 +21,8 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DCCPacketAnalyser\DCCPacketAnalyser.csproj" />
+    </ItemGroup>
+
 </Project>
