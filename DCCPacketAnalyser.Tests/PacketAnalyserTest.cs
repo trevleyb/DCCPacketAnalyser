@@ -11,9 +11,9 @@ public class PacketAnalyserTest {
     public void TestAddressDecoder(byte[] packet, AddressTypeEnum addressType, int address) {
         var decoded = PacketAnalyser.Decode(packet);
         Assert.That(decoded, Is.Not.Null);
-        Assert.That(decoded, Is.TypeOf<DecoderPacket>());
+        Assert.That(decoded, Is.TypeOf<PacketMessage>());
 
-        decoded = decoded as DecoderPacket;
+        decoded = decoded as PacketMessage;
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(addressType));
         Assert.That(decoded.Address, Is.EqualTo(address));
@@ -24,11 +24,11 @@ public class PacketAnalyserTest {
     [TestCase(new byte[] { 0x81, 0xF9, 0x78 }, 1, AccessoryStateEnum.Normal)]
     [TestCase(new byte[] { 0x81, 0xF8, 0x79 }, 1, AccessoryStateEnum.Reversed)]
     public void TestAccessory(byte[] packet, int address, AccessoryStateEnum state) {
-        var decoded = PacketAnalyser.Decode(packet) as AccessoryPacket;
+        var decoded = PacketAnalyser.Decode(packet) as AccessoryMessage;
         Assert.That(decoded, Is.Not.Null);
-        Assert.That(decoded, Is.TypeOf<AccessoryPacket>());
+        Assert.That(decoded, Is.TypeOf<AccessoryMessage>());
 
-        decoded = decoded as AccessoryPacket;
+        decoded = decoded as AccessoryMessage;
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(AddressTypeEnum.Accessory));
         Assert.That(decoded.Address, Is.EqualTo(address));
@@ -41,13 +41,13 @@ public class PacketAnalyserTest {
     public void TestSignal(byte[] packet, int address, byte aspect) {
         var decoded = PacketAnalyser.Decode(packet);
         Assert.That(decoded, Is.Not.Null);
-        Assert.That(decoded, Is.TypeOf<SignalPacket>());
+        Assert.That(decoded, Is.TypeOf<SignalMessage>());
 
-        decoded = decoded as SignalPacket;
+        decoded = decoded as SignalMessage;
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(AddressTypeEnum.Signal));
         Assert.That(decoded.Address, Is.EqualTo(address));
-        Assert.That(((SignalPacket)decoded).Aspect, Is.EqualTo((SignalAspectEnums)aspect));
+        Assert.That(((SignalMessage)decoded).Aspect, Is.EqualTo((SignalAspectEnums)aspect));
         Console.WriteLine(decoded.ToString());
     }
 

@@ -22,6 +22,7 @@ public enum AccessoryStateEnum {
     On       = 1
 }
 
+
 public enum DecoderMessageTypeEnum {
     Error,
     None,
@@ -65,6 +66,7 @@ public enum AddressTypeEnum {
     Accessory,
     Signal,
     Error,
+    Duplicate
 }
 
 public enum SignalAspectEnums {

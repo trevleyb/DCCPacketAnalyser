@@ -76,6 +76,11 @@ public class PacketData {
     }
 
     /// <summary>
+    /// Returns the number of elements in the Data Packet
+    /// </summary>
+    public int Elements => _packetData.Length;
+    
+    /// <summary>
     /// Check if the data in the packet is at least as long as length
     /// </summary>
     /// <param name="length"></param>
@@ -84,6 +89,22 @@ public class PacketData {
         return _packetData.Length >= length;
     }
 
+    public static IEqualityComparer<PacketData> PacketDataComparer { get; } = new PacketDataEqualityComparer();
+    private sealed class PacketDataEqualityComparer : IEqualityComparer<PacketData> {
+        public bool Equals(PacketData? x, PacketData? y) {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            if (x.Elements != y.Elements) return false;
+            return x._packetData.Equals(y._packetData);
+        }
+
+        public int GetHashCode(PacketData obj) {
+            return obj._packetData.GetHashCode();
+        }
+    }
+    
     /// <summary>
     /// Check if the packet is valid by performing a checksum calculation.
     /// XOR bytes 1 & 2 and then XOR the result with the next byte through

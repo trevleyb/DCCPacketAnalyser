@@ -9,17 +9,19 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 /// </summary>
 /// <param name="message">A message representing the error</param>
 /// <param name="packet">The original packet data</param>
-public class ErrorPacket : PacketMessage, IPacketMessage {
-    public string Message { get; set; } = string.Empty;
+public class ErrorMessage : PacketMessage, IPacketMessage {
+    public string Message { get; set; }
 
-    public ErrorPacket(PacketData packetData, string message) : base(packetData) {
-        Address     = 0;
-        AddressType = AddressTypeEnum.Error;
+    public ErrorMessage(IPacketMessage packetMessage, string message) : base(packetMessage.PacketData, packetMessage.AddressType, packetMessage.Address) {
+        Message     = message;
+    }
+
+    public ErrorMessage(PacketData packetData, string message) : base(packetData, AddressTypeEnum.Error, 0) {
         Message     = message;
     }
 
     public override string ToString() {
-        return $"ERROR: Message='{Message}'";
+        return $"ERROR: Message='{Message}'\t[{PacketData.ToBinary}]";
     }
 
     public void ProcessRemainingPacket() { }
