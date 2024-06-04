@@ -10,18 +10,18 @@ namespace DCCPacketAnalyser.Tests;
 [TestFixture]
 public class LiveTest {
 
-    private string        _lastMessage     = string.Empty;
-    private Queue<string> _messageQueue    = new();
-    private string        _bufferRemainder = string.Empty;
+    private          string        _lastMessage     = string.Empty;
+    private readonly Queue<string> _messageQueue    = new();
+    private          string        _bufferRemainder = string.Empty;
 
-    [Test]
+    [Test]//[Ignore("Skip as only for live testing")]
     public void FullRunTest() {
         var cts = new CancellationTokenSource();
         var result = ReadSerialAndProcessMessages(cts);
         Debug.WriteLine(result?.Exception?.Message);
     }
     
-    public async Task ReadSerialAndProcessMessages (CancellationTokenSource cts) {
+    private Task ReadSerialAndProcessMessages (CancellationTokenSource cts) {
 
         Debug.WriteLine("-------------------------------------------------------");
         var ports = SerialPort.GetPortNames();
@@ -39,7 +39,7 @@ public class LiveTest {
             serialPort.Open();
             SendPacketAnalyzerCommand(serialPort, "H2"); // We need Verbose Mode or Hex Mode? 
             SendPacketAnalyzerCommand(serialPort, "A+"); // We want Accessory commands
-            SendPacketAnalyzerCommand(serialPort, "I+"); // We do not want IDLE commands
+            SendPacketAnalyzerCommand(serialPort, "I-"); // We do not want IDLE commands
             SendPacketAnalyzerCommand(serialPort, "L+"); // We want Loco commands
             SendPacketAnalyzerCommand(serialPort, "R+"); // We do not need RESET commands
             SendPacketAnalyzerCommand(serialPort, "S+"); // We want Signal commands
@@ -53,6 +53,7 @@ public class LiveTest {
                 Debug.WriteLine("Press Q to quit.");
                 while (!cancellationToken.IsCancellationRequested) {
                     if (Console.ReadKey().Key == ConsoleKey.Q) {
+                        Debug.WriteLine("Q pressed: Quiting");
                         cts.Cancel();
                     }
                 }
@@ -71,12 +72,14 @@ public class LiveTest {
             serialPort.Close();
         }
         Debug.WriteLine("Finished.");
+        return Task.CompletedTask;
     }
 
     private void ProcessQueue(PacketAnalyser packetAnalyser) {
         foreach (var message in GetQueuedMessages()) {
-            if (_lastMessage is null || _lastMessage == message) continue;
-            var decodedMessage = packetAnalyser.Decode(message);
+            if (_lastMessage != message) {
+                var decodedMessage = packetAnalyser.Decode(message);
+            }
             _lastMessage = message;
         }
     }

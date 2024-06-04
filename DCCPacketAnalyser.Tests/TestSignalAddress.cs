@@ -25,7 +25,7 @@ public class TestSignalAddress {
                 var message = decoder.DeterminePacketType(packet);
                 Assert.That(message, Is.Not.Null, "Packet Message should not be null unless an error occurred.");
                 Assert.That(message, Is.InstanceOf<IPacketMessage>(), "Should not be possible as all results are IPacketMessage");
-                Assert.That(message, Is.TypeOf<SignalMessage>(), "Return type, with this range should always be a Signal Message");
+                Assert.That(message, Is.TypeOf<PacketMessage>(), "Return type, with this range should always be a Signal Message");
                 Assert.That(message.Address, Is.EqualTo(address++), $"Address did not calculate correctly. Should be {address - 1}");
             }
         }

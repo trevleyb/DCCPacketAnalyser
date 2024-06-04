@@ -9,8 +9,8 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 /// </summary>
 /// <param name="message">A message representing the error</param>
 /// <param name="packet">The original packet data</param>
-public class ErrorMessage : PacketMessage, IPacketMessage {
-    public string Message { get; set; }
+public class ErrorMessage : PacketMessage, IPacketMessage, IEquatable<ErrorMessage> {
+    public string Message { get; init; }
 
     public ErrorMessage(IPacketMessage packetMessage, string message) : base(packetMessage.PacketData, packetMessage.AddressType, packetMessage.Address) {
         Message     = message;
@@ -24,5 +24,20 @@ public class ErrorMessage : PacketMessage, IPacketMessage {
         return FormatHelper.FormatMessage("ERROR", base.ToString(), PacketData, ("Message",Message) );
     }
 
-    public void ProcessRemainingPacket() { }
+    public bool Equals(ErrorMessage? other) {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Message == other.Message;
+    }
+
+    public override bool Equals(object? obj) {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((ErrorMessage)obj);
+    }
+
+    public override int GetHashCode() {
+        return Message.GetHashCode();
+    }
 }

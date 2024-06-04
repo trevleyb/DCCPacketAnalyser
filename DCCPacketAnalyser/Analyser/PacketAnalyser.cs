@@ -22,12 +22,16 @@ public class PacketAnalyser {
     
     public IPacketMessage Decode(PacketData packet) {
 
-        if (!packet.IsValidPacket && ++_invalidCount > 10) throw new Exception("Invalid packet data consistently recieved");
-
+        // sometimes we will get corrupt data coming through, so we need to check for this.
+        // If it happens consecutively more than 10 times, assume we have an issue and 
+        // through an exception, otherwise just ignore the packet and move onto the next one. 
+        if (!packet.IsValidPacket && ++_invalidCount > 10) throw new Exception("Invalid packet data consistently received");
+        
         // Start by working out what type of Address the packet is addressed to
         // and return an instance/object that represents the type of thing we are 
         // sending messages to. Then, decode the rest of the message in that object. 
         // ----------------------------------------------------------------------------
+        _invalidCount = 0;
         try {
             var baseMessage   = DeterminePacketType(packet);
             var decodedMessage = ProcessRemainingPacket(baseMessage);
@@ -39,17 +43,20 @@ public class PacketAnalyser {
         }
     }
 
-    // Look at the first and second bytes and work out the type of address 
-    // and what the actual address is. The first bits of the first byte of the 
-    // packet determines the type and that also determines if we need the 2nd 
-    // byte of the packet to calculate the address. 
-    // This also increments the 'offset' so that we can proceed to use byte 2 or 3
-    // in future calculations. 
+    /// <summary>
+    /// Look at the first and second bytes and work out the type of address 
+    /// and what the actual address is. The first bits of the first byte of the 
+    /// packet determines the type and that also determines if we need the 2nd 
+    /// byte of the packet to calculate the address. 
+    /// This also increments the 'offset' so that we can proceed to use byte 2 or 3
+    /// in future calculations. 
+    /// </summary>
+    /// <param name="packetData">The underlying object that represets the data</param>
+    /// <returns>A message of type IPacketMessage</returns>
+    /// <exception cref="IndexOutOfRangeException"></exception>
     internal IPacketMessage DeterminePacketType(PacketData packetData) {
         // Validate that we can access the Packet Array without an Index Out of Range
         // --------------------------------------------------------------------------
-        if (!packetData.IsAtLeastLength(2)) throw new IndexOutOfRangeException("Packet size is < 2 so is an invalid packet.");
-
         var typeByte = packetData.First(); // Get Byte #1
         var dataByte = packetData.Peek();  // Get Byte #2 but leave it ready for further processing.
 
@@ -106,16 +113,15 @@ public class PacketAnalyser {
         };
     }
 
-    private SignalMessage ProcessSignalPacket(IPacketMessage packetMessage) {
+    private IPacketMessage ProcessSignalPacket(IPacketMessage packetMessage) {
         var dataByte = packetMessage.PacketData.Next();
         if (!dataByte.GetBit(7)) { // Basic Accessory Decoder
             return new SignalMessage(packetMessage,(SignalAspectEnums)(byte)(dataByte & 0b00011111));
-        } else {
-            throw new Exception("We really should not be here. This should be have been an Accessory not Signal.");
         }
+        return new ErrorMessage(packetMessage, "Invalid Signal Packet Message. This should not occur.");
     }
 
-    private AccessoryMessage ProcessAccessoryPacket(IPacketMessage packetMessage) {
+    private IPacketMessage ProcessAccessoryPacket(IPacketMessage packetMessage) {
         var dataByte = packetMessage.PacketData.Next();
         if (dataByte.GetBit(7)) { // Basic Accessory Decoder
             var activated        = dataByte.GetBit(3);
@@ -123,16 +129,15 @@ public class PacketAnalyser {
             var output           = dataByte.GetBit(0);
             var outputPair       = (dataByte & 0b00000110) >> 1;
             return new AccessoryMessage(packetMessage, dataByte.GetBit(0) ? AccessoryStateEnum.Normal : AccessoryStateEnum.Reversed);
-        } else {
-            throw new Exception("We really should not be here. This should be have been an Signal not Accessory.");
-        }
+        } 
+        return new ErrorMessage(packetMessage, "Invalid Accessory Packet Message. This should not occur.");
     }
 
     /// <summary>
     /// Get the multifunction data from the packet and update the decoded data object.
     /// </summary>
     private IPacketMessage ProcessDecoderPacket(IPacketMessage packetMessage) {
-        if (!packetMessage.PacketData.IsAtLeastLength(3)) throw new Exception("Invalid Data to process. Must have at least 3 elements: " + packetMessage.PacketData.ToBinary);
+        if (!packetMessage.PacketData.IsAtLeastLength(3)) return new ErrorMessage(packetMessage, "Invalid Data to process. Must have at least 3 elements: ");
 
         // Decoder Control is in the form CCCDDDDD where 
         // CCC = command and DDDDD = data to apply
@@ -141,17 +146,17 @@ public class PacketAnalyser {
         var cmdByte  = (byte)(instByte & 0b11100000) >> 5;
         var dataByte = (byte)(instByte & 0b00011111);
 
-        return cmdByte switch {
-            0b00000000 => DecoderAndConsistControl(packetMessage, dataByte),
-            0b00000001 => AdvancedOperationInstructions(packetMessage, dataByte),
-            0b00000010 => SpeedAndDirectionForReverse(packetMessage, dataByte),
-            0b00000011 => SpeedAndDirectionForForward(packetMessage, dataByte),
-            0b00000100 => FunctionGroupOneInstructions(packetMessage, dataByte),
-            0b00000101 => FunctionGroupTwoInstructions(packetMessage, dataByte),
-            0b00000110 => ExtendedFunctions(packetMessage, dataByte),
-            0b00000111 => ConfigurationVariableAccess(packetMessage, dataByte),
-            _          => throw new ArgumentOutOfRangeException(null, $"Invalid Instruction byte for MultiFunction Decoder.")
+        var message = cmdByte switch {
+            0b000 => DecoderAndConsistControl(packetMessage, dataByte),
+            0b001 => AdvancedOperationInstructions(packetMessage, dataByte),
+            0b010 => SpeedAndDirection(packetMessage, dataByte, DirectionEnum.Reverse),
+            0b011 => SpeedAndDirection(packetMessage, dataByte, DirectionEnum.Forward),
+            0b100 => FunctionGroupOneInstructions(packetMessage, dataByte),
+            0b101 => FunctionGroupTwoInstructions(packetMessage, dataByte),
+            0b110 => ExtendedFunctions(packetMessage, dataByte),
+            0b111 => ConfigurationVariableAccess(packetMessage, dataByte),
         };
+        return message ?? new ErrorMessage(packetMessage, $"Invalid Instruction byte '{instByte.ToString()}' for MultiFunction Decoder.");
     }
 
     internal IPacketMessage DecoderAndConsistControl(IPacketMessage packetMessage, byte dataByte) {
@@ -184,65 +189,53 @@ public class PacketAnalyser {
     }
 
     internal IPacketMessage AdvancedOperationInstructions(IPacketMessage packetMessage, byte dataByte) {
+        var speed = (byte)(packetMessage.PacketData.Next() & 0b01111111);
         switch (dataByte) {
+        case 0b00011100: // 28 Speed Step Control        
+            return speed switch {
+                0 => new SpeedAndDirectionMessage(packetMessage, speed, DirectionEnum.Stop),
+                1 => new SpeedAndDirectionMessage(packetMessage, speed, DirectionEnum.EStop),
+                _ => new SpeedAndDirectionMessage(packetMessage, (byte)(speed - 1), packetMessage.PacketData.Next().GetBit(7) ? DirectionEnum.Forward : DirectionEnum.Reverse),
+            };
         case 0b00011111: // 128 Speed Step Control
-            DirectionEnum direction;
-            var speed = (byte)(packetMessage.PacketData.Next() & 0b01111111);
-            switch (speed) {
-            case 0:
-                direction = DirectionEnum.Stop;
-                break;
-            case 1:
-                speed     -= 1;
-                direction =  DirectionEnum.EStop;
-                break;
-            default:
-                speed     -= 1;
-                direction =  packetMessage.PacketData.Next().GetBit(7) ? DirectionEnum.Forward : DirectionEnum.Reverse;
-                break;
-            }
-            return new SpeedAndDirectionMessage(packetMessage,speed,direction);
-        
+            return speed switch {
+                0 => new SpeedAndDirectionMessage(packetMessage, speed, DirectionEnum.Stop),
+                1 => new SpeedAndDirectionMessage(packetMessage, speed, DirectionEnum.EStop),
+                _ => new SpeedAndDirectionMessage(packetMessage, (byte)(speed - 1), packetMessage.PacketData.Next().GetBit(7) ? DirectionEnum.Forward : DirectionEnum.Reverse),
+            };
         case 0b00011110: // Restricted Speed Step
-            var speedStepsMessage = new SpeedStepsMessage(packetMessage) {
+            return new SpeedStepsMessage(packetMessage) {
                 SpeedStepsData  = (byte)(packetMessage.PacketData.Next() & 0b01111111),
                 RestrictedSpeed = packetMessage.PacketData.Current().GetBit(7)
             };
-            return speedStepsMessage;
         case 0b00011101: // Analog Function Group
-            break;
+            return new AnalogFunctionMessage(packetMessage);
         }
         return new ErrorMessage(packetMessage, "Invalid Advanced Operation Instruction.");
     }
 
-    internal IPacketMessage SpeedAndDirectionForReverse(IPacketMessage packetMessage, byte dataByte) {
+    internal IPacketMessage SpeedAndDirection(IPacketMessage packetMessage, byte dataByte, DirectionEnum expectedDirection) {
         var speed = (byte)(((dataByte & 0B00001111) << 1) - 3 + (dataByte.GetBit(4) ? 1 : 0));
+        var speedStr = speed.FormatBits();
         var direction = speed switch {
-            253 or 254 => DirectionEnum.Stop,
-            255        => DirectionEnum.EStop,
-            _          => DirectionEnum.Reverse
+            253 => DirectionEnum.Stop,
+            254 => DirectionEnum.EStop,
+            255 => DirectionEnum.Stop,
+            _   => expectedDirection,
         };
-        return new SpeedAndDirectionMessage(packetMessage,speed,direction);
-    }
-
-    internal IPacketMessage SpeedAndDirectionForForward(IPacketMessage packetMessage, byte dataByte) {
-        var speed = (byte)(((dataByte & 0B00001111) << 1) - 3 + (dataByte.GetBit(4) ? 1 : 0));
-        var direction = speed switch {
-            253 or 254 => DirectionEnum.Stop,
-            255        => DirectionEnum.EStop,
-            _          => DirectionEnum.Forward
-        };
+        //if (speed <= 1) speed =  0;     // if it was a stop message, set it to zero
+        if (speed >= 253) speed = 0;     // if it is not zero, reduce by 1
         return new SpeedAndDirectionMessage(packetMessage,speed,direction);
     }
 
     internal IPacketMessage FunctionGroupOneInstructions(IPacketMessage packetMessage, byte dataByte) {
-        return new FunctionsMessage(packetMessage);
+        return new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F0F4);
     }
 
     internal IPacketMessage FunctionGroupTwoInstructions(IPacketMessage packetMessage, byte dataByte) {
         return dataByte.GetBit(4) ? // F5-F8
-            new FunctionsMessage(packetMessage,dataByte,FunctionsGroupEnum.FunctionsF5F8) :
-            new FunctionsMessage(packetMessage,dataByte,FunctionsGroupEnum.FunctionsF9F12);
+            new FunctionsMessage(packetMessage,dataByte,FunctionsGroupEnum.F5F8) :
+            new FunctionsMessage(packetMessage,dataByte,FunctionsGroupEnum.F9F12);
     }
 
     internal IPacketMessage ExtendedFunctions(IPacketMessage packetMessage, byte instByte) {
@@ -251,13 +244,13 @@ public class PacketAnalyser {
         return (instByte & 0b00011111) switch {
             0b00000 => new BinaryStateMessage(packetMessage, BinaryStateTypeEnum.Long),
             0b11101 => new BinaryStateMessage(packetMessage, BinaryStateTypeEnum.Short),
-            0b11110 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF13F20),
-            0b11111 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF21F28),
-            0b11000 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF29F36),
-            0b11001 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF37F44),
-            0b11010 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF45F52),
-            0b11011 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF53F60),
-            0b11100 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.FunctionsF61F68),
+            0b11110 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F13F20),
+            0b11111 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F21F28),
+            0b11000 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F29F36),
+            0b11001 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F37F44),
+            0b11010 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F45F52),
+            0b11011 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F53F60),
+            0b11100 => new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F61F68),
                   _ => new ErrorMessage(packetMessage, "Invalid Extended Function Instruction.")
         };
     }
@@ -273,14 +266,16 @@ public class PacketAnalyser {
                 0b1001 => new MomentumMessage(packetMessage, MomentumTypeEnum.Lock, packetMessage.PacketData.Next()),
                 _      => new ErrorMessage(packetMessage, "Invalid Short form CV Variable Access")
             };
-        } else {
-            return (dataByte & 0b00001100) switch {
-                0b00 => new ErrorMessage(packetMessage, "Invalid Long form CV Variable Access (00)"),
-                0b01 => new ConfigCVMessage(packetMessage, ConfigCVTypeEnum.Verify, ((dataByte & 00000011) << 8) | packetMessage.PacketData.Next(), packetMessage.PacketData.Next()),
-                0b11 => new ConfigCVMessage(packetMessage, ConfigCVTypeEnum.Write, ((dataByte & 00000011) << 8) | packetMessage.PacketData.Next(), packetMessage.PacketData.Next()),
-                0b10 => new ConfigCVMessage(packetMessage, ConfigCVTypeEnum.BitManipulate, ((dataByte & 00000011) << 8) | packetMessage.PacketData.Next(), packetMessage.PacketData.Next()),
-                _    => new ErrorMessage(packetMessage, "Invalid Long form CV Variable Access")
-            };
         }
+
+        // Long Form Message
+        return (dataByte & 0b00001100) switch {
+            0b00 => new ErrorMessage(packetMessage, "Invalid Long form CV Variable Access (00)"),
+            0b01 => new ConfigCVMessage(packetMessage, ConfigCVTypeEnum.Verify, ((dataByte & 00000011) << 8) | packetMessage.PacketData.Next(), packetMessage.PacketData.Next()),
+            0b11 => new ConfigCVMessage(packetMessage, ConfigCVTypeEnum.Write, ((dataByte & 00000011) << 8) | packetMessage.PacketData.Next(), packetMessage.PacketData.Next()),
+            0b10 => new ConfigCVMessage(packetMessage, ConfigCVTypeEnum.BitManipulate, ((dataByte & 00000011) << 8) | packetMessage.PacketData.Next(), packetMessage.PacketData.Next()),
+            _    => new ErrorMessage(packetMessage, "Invalid Long form CV Variable Access")
+        };
+
     }
 }

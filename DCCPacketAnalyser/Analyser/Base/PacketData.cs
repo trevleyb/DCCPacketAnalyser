@@ -1,6 +1,6 @@
 namespace DCCPacketAnalyser.Analyser.Base;
 
-public class PacketData(byte[] packetData) {
+public class PacketData(byte[] packetData) : IEquatable<PacketData> {
     private readonly byte[] _packetData    = packetData;
     private          int    _currentOffset = -1;
 
@@ -83,22 +83,6 @@ public class PacketData(byte[] packetData) {
     public bool IsAtLeastLength(int length) {
         return _packetData.Length >= length;
     }
-
-    public static IEqualityComparer<PacketData> PacketDataComparer { get; } = new PacketDataEqualityComparer();
-    private sealed class PacketDataEqualityComparer : IEqualityComparer<PacketData> {
-        public bool Equals(PacketData? x, PacketData? y) {
-            if (ReferenceEquals(x, y)) return true;
-            if (ReferenceEquals(x, null)) return false;
-            if (ReferenceEquals(y, null)) return false;
-            if (x.GetType() != y.GetType()) return false;
-            if (x.Elements != y.Elements) return false;
-            return x._packetData.Equals(y._packetData);
-        }
-
-        public int GetHashCode(PacketData obj) {
-            return obj._packetData.GetHashCode();
-        }
-    }
     
     /// <summary>
     /// Check if the packet is valid by performing a checksum calculation.
@@ -107,10 +91,27 @@ public class PacketData(byte[] packetData) {
     /// always be zero. 
     /// </summary>
     /// <returns>True if the packet is valid, otherwise false</returns>
-    public bool IsValidPacket => _packetData.Aggregate(0, (current, t) => current ^ t) == 0;
+    public bool IsValidPacket => IsAtLeastLength(2) && _packetData.Aggregate(0, (current, t) => current ^ t) == 0;
 
     /// <summary>
     /// Return the Packet Data as a set of Binary Numbers separated by -
     /// </summary>
     public string ToBinary => string.Join("-", _packetData.Select(part => Convert.ToString(part, 2).PadLeft(8, '0')));
+
+    public bool Equals(PacketData? other) {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return _packetData.Equals(other._packetData);
+    }
+
+    public override bool Equals(object? obj) {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((PacketData)obj);
+    }
+
+    public override int GetHashCode() {
+        return HashCode.Combine(_packetData);
+    }
 }

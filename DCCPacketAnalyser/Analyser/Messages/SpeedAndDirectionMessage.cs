@@ -10,7 +10,7 @@ public class SpeedAndDirectionMessage (IPacketMessage packet, byte speed, Direct
     public bool          RestrictedSpeed { get; init; } = isRestricted;
 
     public override string ToString() {
-        return FormatHelper.FormatMessage("SPEED & DIR", base.ToString(), PacketData, ("Speed",speed),("Direction",Direction.ToString()),("IsRestricted?",RestrictedSpeed.ToString()) );
+        return FormatHelper.FormatMessage("SPEED & DIR", base.ToString(), PacketData, ("Speed",Speed),("Direction",Direction.ToString()),("IsRestricted?",RestrictedSpeed.ToString()) );
     }
 
     public bool Equals(SpeedAndDirectionMessage? other) {

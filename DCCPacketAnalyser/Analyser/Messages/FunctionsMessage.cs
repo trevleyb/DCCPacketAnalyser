@@ -3,37 +3,37 @@ using DCCPacketAnalyser.Analyser.Helpers;
 
 namespace DCCPacketAnalyser.Analyser.Messages;
 
-public class FunctionsMessage (IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<FunctionsMessage> {
+public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
 
-    private int                from;
-    private int                to;
+    private int                _from;
+    private int                _to;
     public  FunctionsGroupEnum Group     { get; init; }
     public  bool[]             Functions { get; } = new bool[69];
 
-    public FunctionsMessage(IPacketMessage packet, byte dataByte, FunctionsGroupEnum group) : this(packet) {
+    public FunctionsMessage(IPacketMessage packet, byte dataByte, FunctionsGroupEnum group) : base(packet.PacketData, packet.AddressType, packet.Address) {
         Group = group;
         _ = group switch {
-            FunctionsGroupEnum.FunctionsF0F4   => SetFunction(dataByte, 1, 4),
-            FunctionsGroupEnum.FunctionsF5F8   => SetFunction(dataByte, 5, 8),
-            FunctionsGroupEnum.FunctionsF9F12  => SetFunction(dataByte, 9, 12),
-            FunctionsGroupEnum.FunctionsF13F20 => SetFunction(dataByte, 13, 20),
-            FunctionsGroupEnum.FunctionsF21F28 => SetFunction(dataByte, 21, 28),
-            FunctionsGroupEnum.FunctionsF29F36 => SetFunction(dataByte, 29, 36),
-            FunctionsGroupEnum.FunctionsF37F44 => SetFunction(dataByte, 37, 44),
-            FunctionsGroupEnum.FunctionsF45F52 => SetFunction(dataByte, 45, 52),
-            FunctionsGroupEnum.FunctionsF53F60 => SetFunction(dataByte, 53, 60),
-            FunctionsGroupEnum.FunctionsF61F68 => SetFunction(dataByte, 61, 68),
+            FunctionsGroupEnum.F0F4   => SetFunction(dataByte, 1, 4),
+            FunctionsGroupEnum.F5F8   => SetFunction(dataByte, 5, 8),
+            FunctionsGroupEnum.F9F12  => SetFunction(dataByte, 9, 12),
+            FunctionsGroupEnum.F13F20 => SetFunction(dataByte, 13, 20),
+            FunctionsGroupEnum.F21F28 => SetFunction(dataByte, 21, 28),
+            FunctionsGroupEnum.F29F36 => SetFunction(dataByte, 29, 36),
+            FunctionsGroupEnum.F37F44 => SetFunction(dataByte, 37, 44),
+            FunctionsGroupEnum.F45F52 => SetFunction(dataByte, 45, 52),
+            FunctionsGroupEnum.F53F60 => SetFunction(dataByte, 53, 60),
+            FunctionsGroupEnum.F61F68 => SetFunction(dataByte, 61, 68),
             _                                  => throw new ArgumentOutOfRangeException(nameof(packet),"Invalid Function Block")
         };
 
         // Special Case for F0 which is held in the 4th bit
-        if (group == FunctionsGroupEnum.FunctionsF0F4) {
+        if (group == FunctionsGroupEnum.F0F4) {
             Functions[0]   = dataByte.GetBit(4);
         }
     }
 
     public override string ToString() {
-        return FormatHelper.FormatMessage("FUNCTIONS", base.ToString(), PacketData, ("Group",Group.ToString()),("Functions",OutputFunctions(from,to)) );
+        return FormatHelper.FormatMessage("FUNCTIONS", base.ToString(), PacketData, ("Group",Group.ToString()),("Functions",OutputFunctions(_from,_to)) );
     }
     
     /// <summary>
@@ -52,8 +52,8 @@ public class FunctionsMessage (IPacketMessage packet) : PacketMessage(packet.Pac
     }
 
     private bool SetFunction(byte dataByte, byte start, byte end) {
-        from = start;
-        to = end;
+        _from = start;
+        _to = end;
         for (var func = start; func <= end; func++) {
             Functions[func] = dataByte.GetBit(func - start);
         }
@@ -64,7 +64,8 @@ public class FunctionsMessage (IPacketMessage packet) : PacketMessage(packet.Pac
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
         if (Address != other.Address) return false;
-        return Group == other.Group && Functions.Equals(other.Functions);
+        if (Group != other?.Group) return false;
+        return !Functions.Where((t, i) => t != other?.Functions[i]).Any();
     }
 
     public override bool Equals(object? obj) {
@@ -80,14 +81,14 @@ public class FunctionsMessage (IPacketMessage packet) : PacketMessage(packet.Pac
 }
 
 public enum FunctionsGroupEnum {
-    FunctionsF0F4,
-    FunctionsF5F8,
-    FunctionsF9F12,
-    FunctionsF13F20,
-    FunctionsF21F28,
-    FunctionsF29F36,
-    FunctionsF37F44,
-    FunctionsF45F52,
-    FunctionsF53F60,
-    FunctionsF61F68,
+    F0F4,
+    F5F8,
+    F9F12,
+    F13F20,
+    F21F28,
+    F29F36,
+    F37F44,
+    F45F52,
+    F53F60,
+    F61F68,
 }
