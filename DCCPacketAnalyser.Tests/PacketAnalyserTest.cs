@@ -9,22 +9,22 @@ namespace DCCPacketAnalyser.Tests;
 public class PacketAnalyserTest {
     [TestCase(new byte[] { 195, 252, 63, 130, 130 }, AddressTypeEnum.Long, 1020)]
     public void TestAddressDecoder(byte[] packet, AddressTypeEnum addressType, int address) {
-        var decoded = PacketAnalyser.Decode(packet);
+        var decoder = new PacketAnalyser();
+        var decoded = decoder.Decode(packet);
         Assert.That(decoded, Is.Not.Null);
-        Assert.That(decoded, Is.TypeOf<PacketMessage>());
+        Assert.That(decoded, Is.InstanceOf<SpeedAndDirectionMessage>());
 
         decoded = decoded as PacketMessage;
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(addressType));
         Assert.That(decoded.Address, Is.EqualTo(address));
-
-        Console.WriteLine(decoded.ToString());
     }
 
     [TestCase(new byte[] { 0x81, 0xF9, 0x78 }, 1, AccessoryStateEnum.Normal)]
     [TestCase(new byte[] { 0x81, 0xF8, 0x79 }, 1, AccessoryStateEnum.Reversed)]
     public void TestAccessory(byte[] packet, int address, AccessoryStateEnum state) {
-        var decoded = PacketAnalyser.Decode(packet) as AccessoryMessage;
+        var decoder = new PacketAnalyser();
+        var decoded = decoder.Decode(packet) as AccessoryMessage;
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded, Is.TypeOf<AccessoryMessage>());
 
@@ -39,7 +39,8 @@ public class PacketAnalyserTest {
     [TestCase(new byte[] { 0x83, 0x73, 0x06, 0xF6 }, 10, 6)]
     [TestCase(new byte[] { 0x83, 0x77, 0x01, 0xF5 }, 12, 1)]
     public void TestSignal(byte[] packet, int address, byte aspect) {
-        var decoded = PacketAnalyser.Decode(packet);
+        var decoder = new PacketAnalyser();
+        var decoded = decoder.Decode(packet);
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded, Is.TypeOf<SignalMessage>());
 

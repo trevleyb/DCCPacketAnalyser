@@ -21,7 +21,7 @@ public class ErrorMessage : PacketMessage, IPacketMessage {
     }
 
     public override string ToString() {
-        return $"ERROR: Message='{Message}'\t[{PacketData.ToBinary}]";
+        return FormatHelper.FormatMessage("ERROR", base.ToString(), PacketData, ("Message",Message) );
     }
 
     public void ProcessRemainingPacket() { }

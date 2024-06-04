@@ -1,13 +1,8 @@
 namespace DCCPacketAnalyser.Analyser.Base;
 
-public class PacketData {
-    private readonly byte[] _packetData;
+public class PacketData(byte[] packetData) {
+    private readonly byte[] _packetData    = packetData;
     private          int    _currentOffset = -1;
-
-    public PacketData(byte[] packetData) {
-        _packetData = packetData;
-        if (!IsValidPacket) throw new Exception("Packet Data is invalid.");
-    }
 
     /// <summary>
     /// Get the next Packet in the sequence of packets and increment the offset counter
