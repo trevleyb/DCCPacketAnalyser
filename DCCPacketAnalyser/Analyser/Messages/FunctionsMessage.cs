@@ -9,7 +9,8 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
     private int                _to;
     public  FunctionsGroupEnum Group     { get; init; }
     public  bool[]             Functions { get; } = new bool[69];
-
+    public  byte               BitValues { get; private set; } 
+    
     public FunctionsMessage(IPacketMessage packet, byte dataByte, FunctionsGroupEnum group) : base(packet.PacketData, packet.AddressType, packet.Address) {
         Group = group;
         _ = group switch {
@@ -54,10 +55,12 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
     }
 
     private bool SetFunction(byte dataByte, byte start, byte end) {
-        _from = start;
-        _to = end;
+        _from     = start;
+        _to       = end;
+        BitValues = 0;
         for (var func = start; func <= end; func++) {
             Functions[func] = dataByte.GetBit(func - start);
+            BitValues = BitValues.SetBit(func - start, Functions[func]);
         }
         return true;
     }
