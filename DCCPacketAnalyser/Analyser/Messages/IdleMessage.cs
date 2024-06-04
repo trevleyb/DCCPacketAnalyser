@@ -4,6 +4,7 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class IdleMessage(PacketData packetData) : PacketMessage(packetData, AddressTypeEnum.Idle, 0), IPacketMessage, IEquatable<IdleMessage> {
+    public override string Summary => "IDLE"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("IDLE Packet", base.ToString(), PacketData );
     }

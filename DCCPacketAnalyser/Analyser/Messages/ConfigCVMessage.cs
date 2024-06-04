@@ -15,6 +15,7 @@ public class ConfigCVMessage(IPacketMessage packet) : PacketMessage(packet.Packe
         CvValue = cvValue;
     }
     
+    public override string Summary => $"{AddressAsString} CV{CvNumber}={CvValue}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("CONFIG(CV)", base.ToString(), PacketData, ("Operation",Type.ToString()),("CvNumber", CvNumber), ("CvValue", CvValue) );
     }

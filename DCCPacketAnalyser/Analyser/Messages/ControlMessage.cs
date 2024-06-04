@@ -5,6 +5,8 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class ControlMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<ControlMessage> {
     public ControlMessageTypeEnum MessageType { get; init; }
+
+    public override string Summary     => $"{AddressAsString} {MessageType}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("CONTROL MSG", base.ToString(), PacketData, ("Control Type",MessageType.ToString()) );
     }

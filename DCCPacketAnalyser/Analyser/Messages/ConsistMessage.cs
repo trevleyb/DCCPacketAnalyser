@@ -8,6 +8,7 @@ public class ConsistMessage(IPacketMessage packet, int address, DirectionEnum di
     public DirectionEnum Direction      { get; init; } = direction;
     public int           ConsistAddress { get; init; } = address;
 
+    public override string Summary => $"{AddressAsString} {ConsistAddress}{Direction switch {DirectionEnum.Forward => "F", DirectionEnum.Reverse => "R", DirectionEnum.Stop => "S", DirectionEnum.EStop => "E", _ => "?"}}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("CONSIST", base.ToString(), PacketData, ("Address",ConsistAddress),("Direction",Direction.ToString()) );
     }

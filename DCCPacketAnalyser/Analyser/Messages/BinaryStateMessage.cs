@@ -4,7 +4,9 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class BinaryStateMessage(IPacketMessage packet, BinaryStateTypeEnum state) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<BinaryStateMessage> {
-    public BinaryStateTypeEnum State { get; init; } = state;
+    public BinaryStateTypeEnum State   { get; init; } = state;
+
+    public override string Summary => $"{AddressAsString}{State}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("BINARY STATE", base.ToString(), PacketData );
     }

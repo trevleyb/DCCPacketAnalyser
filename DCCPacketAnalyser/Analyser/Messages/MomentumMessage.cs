@@ -13,6 +13,7 @@ public class MomentumMessage(IPacketMessage packet) : PacketMessage(packet.Packe
         Value = value;
     }
     
+    public override string Summary => $"{AddressAsString} {Type}:{Value}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("MOMENTUM", base.ToString(), PacketData,("Type",Type.ToString()),("Value",Value));
     }

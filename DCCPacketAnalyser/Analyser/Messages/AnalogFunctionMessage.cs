@@ -4,6 +4,8 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class AnalogFunctionMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, AddressTypeEnum.Accessory, packet.Address), IEquatable<AnalogFunctionMessage> {
+
+    public override string Summary => $"{AddressAsString}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("ANALOG", base.ToString(), PacketData );
     }

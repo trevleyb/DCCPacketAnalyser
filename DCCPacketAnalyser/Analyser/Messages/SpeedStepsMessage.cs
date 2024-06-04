@@ -16,6 +16,7 @@ public class SpeedStepsMessage (IPacketMessage packet) : PacketMessage(packet.Pa
         }
     }
     
+    public override string Summary => $"{AddressAsString} {SpeedSteps}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("SPEED STEPS", base.ToString(), PacketData, ("Steps",SpeedSteps.ToString()),("as",_speedStepsData));
     }

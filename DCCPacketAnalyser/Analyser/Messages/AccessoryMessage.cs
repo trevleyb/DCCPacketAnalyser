@@ -6,6 +6,7 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 public class AccessoryMessage(IPacketMessage packet, AccessoryStateEnum state) : PacketMessage(packet.PacketData, AddressTypeEnum.Accessory, packet.Address), IEquatable<AccessoryMessage> {
     public AccessoryStateEnum State { get; init; } = state;
 
+    public override string Summary => $"{AddressAsString}{State switch {AccessoryStateEnum.On => "N", AccessoryStateEnum.Off => "R", _ => "?"}}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("ACCESSORY", base.ToString(), PacketData, ("State",state.ToString()) );
     }

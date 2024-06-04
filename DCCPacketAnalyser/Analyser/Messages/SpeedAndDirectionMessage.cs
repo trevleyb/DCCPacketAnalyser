@@ -9,6 +9,7 @@ public class SpeedAndDirectionMessage (IPacketMessage packet, byte speed, Direct
     public byte          Speed           { get; init; } = speed;
     public bool          RestrictedSpeed { get; init; } = isRestricted;
 
+    public override string Summary => $"{AddressAsString} S{Speed}{Direction switch {DirectionEnum.Forward => "F", DirectionEnum.Reverse => "R", DirectionEnum.Stop => "S", DirectionEnum.EStop => "E", _ => "?"}}"; 
     public override string ToString() {
         return FormatHelper.FormatMessage("SPEED & DIR", base.ToString(), PacketData, ("Speed",Speed),("Direction",Direction.ToString()),("IsRestricted?",RestrictedSpeed.ToString()) );
     }

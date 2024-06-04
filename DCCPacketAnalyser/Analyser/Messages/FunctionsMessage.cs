@@ -35,6 +35,8 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
         }
     }
 
+    public override string Summary => $"{AddressAsString} {Group}:{OutputFunctions(_from,_to)}"; 
+
     public override string ToString() {
         return FormatHelper.FormatMessage("FUNCTIONS", base.ToString(), PacketData, ("Group",Group.ToString()),("Functions",OutputFunctions(_from,_to)) );
     }

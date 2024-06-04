@@ -6,8 +6,9 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 public class SignalMessage(IPacketMessage packet, SignalAspectEnums aspect) : PacketMessage(packet.PacketData, AddressTypeEnum.Signal, packet.Address), IEquatable<SignalMessage> {
     public SignalAspectEnums Aspect { get; init; } = aspect;
 
+    public override string Summary => $"{AddressAsString} {Aspect}"; 
     public override string ToString() {
-        return FormatHelper.FormatMessage("SIGNAL", base.ToString(), PacketData, ("Aspect",aspect.ToString()) );
+        return FormatHelper.FormatMessage("SIGNAL", base.ToString(), PacketData, ("Aspect",Aspect.ToString()) );
     }
 
     public bool Equals(SignalMessage? other) {
