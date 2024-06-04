@@ -27,8 +27,10 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
         };
 
         // Special Case for F0 which is held in the 4th bit
+        // ------------------------------------------------
         if (group == FunctionsGroupEnum.F0F4) {
-            Functions[0]   = dataByte.GetBit(4);
+            _from        = 0;
+            Functions[0] = dataByte.GetBit(4);
         }
     }
 
@@ -43,11 +45,11 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
     /// <param name="toF">Last Function Number (68)</param>
     /// <returns>A string representing the state of the functions. </returns>
     public string OutputFunctions(int fromF, int toF) {
-        if (fromF <= 0 || fromF > Functions.Length - 1 || toF < 0 || toF > Functions.Length - 1 || toF < fromF) return "--------";
+        if (fromF < 0 || fromF > Functions.Length - 1 || toF < 0 || toF > Functions.Length - 1 || toF < fromF) return "--------";
         var functionBlock = "";
         for (var i = fromF; i <= toF; i++) {
-            functionBlock += Functions[i] ? "X" : "-";
-        }
+            functionBlock += Functions[i] ? "●" : "○";
+        } 
         return functionBlock;
     }
 

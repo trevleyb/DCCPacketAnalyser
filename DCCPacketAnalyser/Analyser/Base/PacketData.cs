@@ -39,8 +39,8 @@ public class PacketData(byte[] packetData) : IEquatable<PacketData> {
     /// Look forward 1 element in the packet array but do not increment the packet counter
     /// </summary>
     /// <returns>A byte being the next packet in the array</returns>
-    public byte Peek() {
-        return GetAt(_currentOffset + 1);
+    public byte Peek(int ahead = 1) {
+        return GetAt(_currentOffset + ahead);
     }
 
     /// <summary>

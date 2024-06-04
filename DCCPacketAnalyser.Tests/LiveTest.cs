@@ -37,13 +37,18 @@ public class LiveTest {
         serialPort.NewLine  = "0x0D";
         try {
             serialPort.Open();
+            
+            // Only need to do send these the first time as with NCE it keeps these values
+            // -----------------------------------------------------------------------------
+            /*
             SendPacketAnalyzerCommand(serialPort, "H2"); // We need Verbose Mode or Hex Mode? 
             SendPacketAnalyzerCommand(serialPort, "A+"); // We want Accessory commands
             SendPacketAnalyzerCommand(serialPort, "I-"); // We do not want IDLE commands
             SendPacketAnalyzerCommand(serialPort, "L+"); // We want Loco commands
             SendPacketAnalyzerCommand(serialPort, "R+"); // We do not need RESET commands
             SendPacketAnalyzerCommand(serialPort, "S+"); // We want Signal commands
-
+            */
+            
             var packetAnalyser = new PacketAnalyser();
             packetAnalyser.PacketAnalysed += message => Debug.WriteLine(message.ToString());
             Debug.WriteLine("Reading Packets from Analyzer.");

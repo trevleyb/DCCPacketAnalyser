@@ -7,8 +7,6 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 /// Represents if we got an error working out the packet data. The message indicates
 /// why we had an error and the original data is included. 
 /// </summary>
-/// <param name="message">A message representing the error</param>
-/// <param name="packet">The original packet data</param>
 public class ErrorMessage : PacketMessage, IPacketMessage, IEquatable<ErrorMessage> {
     public string Message { get; init; }
 

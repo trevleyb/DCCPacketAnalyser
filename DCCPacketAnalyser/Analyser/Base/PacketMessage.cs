@@ -8,9 +8,9 @@ public class PacketMessage(PacketData packetData, AddressTypeEnum addressType, i
     public AddressTypeEnum AddressType { get; protected init; } = addressType;
     
     public override string ToString() {
-        return $"{address:D4}{(char)AddressType}";
+        if (AddressType == AddressTypeEnum.Short) return $" {address:D3}({(char)AddressType})";
+        return $"{address:D4}({(char)AddressType})";
     }
-
 }
 
 
