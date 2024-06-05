@@ -9,7 +9,7 @@ public class PacketMessage(PacketData packetData, AddressTypeEnum addressType, i
     public virtual string Summary  => AddressAsString;
 
     public override string ToString() {
-        return $"{AddressAsString})";
+        return $"{AddressAsString}";
     }
 
     protected string AddressAsString =>

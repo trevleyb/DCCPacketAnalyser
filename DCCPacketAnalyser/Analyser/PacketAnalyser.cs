@@ -44,8 +44,11 @@ public class PacketAnalyser {
     public IPacketMessage Decode(PacketData packet) {
         // Sometimes we will get corrupt data coming through, so we need to check for this.
         // If it happens consecutively more than 10 times, assume we have an issue and 
-        // through an exception, otherwise just ignore the packet and move onto the next one. 
-        if (!packet.IsValidPacket && ++_invalidCount > 10) throw new Exception("Invalid packet data consistently received");
+        // throw an exception, otherwise just ignore the packet and move onto the next one. 
+        if (!packet.IsValidPacket) {
+            if (++_invalidCount > 10) throw new Exception("Invalid packet data consistently received");
+            return new ErrorMessage(packet, "Invalid packet data");
+        }
 
         // Start by working out what type of Address the packet is addressed to
         // and return an instance/object that represents the type of thing we are 
@@ -75,6 +78,7 @@ public class PacketAnalyser {
     /// <returns>A message of type IPacketMessage</returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
     internal static IPacketMessage DeterminePacketType(PacketData packetData) {
+        
         // Validate that we can access the Packet Array without an Index Out of Range
         // --------------------------------------------------------------------------
         var typeByte = packetData.First(); // Get Byte #1
