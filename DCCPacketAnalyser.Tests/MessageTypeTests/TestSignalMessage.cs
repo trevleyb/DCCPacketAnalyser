@@ -6,7 +6,7 @@ namespace DCCPacketAnalyser.Tests.MessageTypeTests;
 
 [TestFixture]
 public class TestSignalMessage {
-    
+    [TestCase(new byte[] { 0x81, 0x71, 0x00, 0xF0 }, typeof(SignalMessage), 1, SignalAspectEnums.Red)]
     [TestCase(new byte[] { 0x81, 0x71, 0x01, 0xF1 }, typeof(SignalMessage), 1, SignalAspectEnums.Yellow)]
     [TestCase(new byte[] { 0x81, 0x71, 0x02, 0xF2 }, typeof(SignalMessage), 1, SignalAspectEnums.Green)]
     [TestCase(new byte[] { 0x81, 0x71, 0x03, 0xF3 }, typeof(SignalMessage), 1, SignalAspectEnums.FlashRed)]

@@ -4,11 +4,12 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class SignalMessage(IPacketMessage packet, SignalAspectEnums aspect) : PacketMessage(packet.PacketData, AddressTypeEnum.Signal, packet.Address), IEquatable<SignalMessage> {
-    public SignalAspectEnums Aspect { get; init; } = aspect;
+    public SignalAspectEnums Aspect { get; } = aspect;
 
-    public override string Summary => $"{AddressAsString} {Aspect}"; 
+    public override string Summary => $"{AddressAsString} {Aspect}";
+
     public override string ToString() {
-        return FormatHelper.FormatMessage("SIGNAL", base.ToString(), PacketData, ("Aspect",Aspect.ToString()) );
+        return FormatHelper.FormatMessage("SIGNAL", base.ToString(), PacketData, ("Aspect", Aspect.ToString()));
     }
 
     public bool Equals(SignalMessage? other) {
@@ -21,12 +22,11 @@ public class SignalMessage(IPacketMessage packet, SignalAspectEnums aspect) : Pa
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((SignalMessage)obj);
+        return obj.GetType() == GetType() && Equals((SignalMessage)obj);
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine((int)Address, (int) Aspect);
+        return HashCode.Combine(Address, (int)Aspect);
     }
 }
 

@@ -11,7 +11,7 @@ public static class ExtensionMethods {
     /// <param name="value">A True (on) or False (off) value to set</param>
     /// <returns></returns>
     public static byte SetBit(this byte bits, int pos, bool value) {
-        if (pos < 0 || pos > 7) throw new IndexOutOfRangeException("Bit position should be 0..7");
+        if (pos is < 0 or > 7) throw new IndexOutOfRangeException("Bit position should be 0..7");
 
         if (value) //left-shift 1, then bitwise OR
         {
@@ -40,7 +40,7 @@ public static class ExtensionMethods {
     ///     Gets if a bit is set in a byte based on a position
     /// </summary>
     public static bool GetBit(this byte bits, int pos) {
-        if (pos < 0 || pos > 7) throw new IndexOutOfRangeException("Bit position should be 0..7");
+        if (pos is < 0 or > 7) throw new IndexOutOfRangeException("Bit position should be 0..7");
 
         //left-shift 1, then bitwise AND, then check for non-zero
         return (bits & (1 << pos)) != 0;
@@ -79,8 +79,8 @@ public static class ExtensionMethods {
     }
 
     public static byte[] ToHexArray(this string bytes) {
-        if (bytes.Any(c => !Uri.IsHexDigit(c))) return new byte[] { 00 };
-        return bytes.Length % 2 == 0 ? Enumerable.Range(0, bytes.Length / 2).Select(i => Convert.ToByte(bytes.Substring(i * 2, 2), 16)).ToArray() : new byte[] { 00 };
+        if (bytes.Any(c => !Uri.IsHexDigit(c))) return [00];
+        return bytes.Length % 2 == 0 ? Enumerable.Range(0, bytes.Length / 2).Select(i => Convert.ToByte(bytes.Substring(i * 2, 2), 16)).ToArray() : [00];
     }
 
     public static byte[] ToHexArray(this byte[] bytes) {

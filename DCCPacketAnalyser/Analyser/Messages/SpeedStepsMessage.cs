@@ -3,22 +3,23 @@ using DCCPacketAnalyser.Analyser.Helpers;
 
 namespace DCCPacketAnalyser.Analyser.Messages;
 
-public class SpeedStepsMessage (IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<SpeedStepsMessage> {
-    private readonly byte  _speedStepsData;
-    public  SpeedStepsEnum SpeedSteps      { get; init; }
-    public  bool           RestrictedSpeed { get; init; }
+public class SpeedStepsMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<SpeedStepsMessage> {
+    private readonly byte           _speedStepsData;
+    public           SpeedStepsEnum SpeedSteps      { get; init; }
+    public           bool           RestrictedSpeed { get; init; }
 
     public byte SpeedStepsData {
         get => _speedStepsData;
         init {
-            _speedStepsData = value; 
-            SpeedSteps      = (SpeedStepsEnum) (value & 0b00000111);
+            _speedStepsData = value;
+            SpeedSteps      = (SpeedStepsEnum)(value & 0b00000111);
         }
     }
-    
-    public override string Summary => $"{AddressAsString} {SpeedSteps}"; 
+
+    public override string Summary => $"{AddressAsString} {SpeedSteps}";
+
     public override string ToString() {
-        return FormatHelper.FormatMessage("SPEED STEPS", base.ToString(), PacketData, ("Steps",SpeedSteps.ToString()),("as",_speedStepsData));
+        return FormatHelper.FormatMessage("SPEED STEPS", base.ToString(), PacketData, ("Steps", SpeedSteps.ToString()), ("as", _speedStepsData));
     }
 
     public bool Equals(SpeedStepsMessage? other) {
@@ -31,8 +32,7 @@ public class SpeedStepsMessage (IPacketMessage packet) : PacketMessage(packet.Pa
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((SpeedStepsMessage)obj);
+        return obj.GetType() == GetType() && Equals((SpeedStepsMessage)obj);
     }
 
     public override int GetHashCode() {

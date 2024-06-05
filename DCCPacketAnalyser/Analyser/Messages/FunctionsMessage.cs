@@ -4,13 +4,12 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
-
     private int                _from;
     private int                _to;
-    public  FunctionsGroupEnum Group     { get; init; }
+    public  FunctionsGroupEnum Group     { get; }
     public  bool[]             Functions { get; } = new bool[69];
-    public  byte               BitValues { get; private set; } 
-    
+    public  byte               BitValues { get; private set; }
+
     public FunctionsMessage(IPacketMessage packet, byte dataByte, FunctionsGroupEnum group) : base(packet.PacketData, packet.AddressType, packet.Address) {
         Group = group;
         _ = group switch {
@@ -24,7 +23,7 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
             FunctionsGroupEnum.F45F52 => SetFunction(dataByte, 45, 52),
             FunctionsGroupEnum.F53F60 => SetFunction(dataByte, 53, 60),
             FunctionsGroupEnum.F61F68 => SetFunction(dataByte, 61, 68),
-            _                                  => throw new ArgumentOutOfRangeException(nameof(packet),"Invalid Function Block")
+            _                         => throw new ArgumentOutOfRangeException(nameof(packet), "Invalid Function Block")
         };
 
         // Special Case for F0 which is held in the 4th bit
@@ -35,12 +34,12 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
         }
     }
 
-    public override string Summary => $"{AddressAsString} {Group}:{OutputFunctions(_from,_to)}"; 
+    public override string Summary => $"{AddressAsString} {Group}:{OutputFunctions(_from, _to)}";
 
     public override string ToString() {
-        return FormatHelper.FormatMessage("FUNCTIONS", base.ToString(), PacketData, ("Group",Group.ToString()),("Functions",OutputFunctions(_from,_to)) );
+        return FormatHelper.FormatMessage("FUNCTIONS", base.ToString(), PacketData, ("Group", Group.ToString()), ("Functions", OutputFunctions(_from, _to)));
     }
-    
+
     /// <summary>
     /// Function to reformat the Functions so they can be displayed. Format as X-X-X-X- where X is On, - is OFF
     /// </summary>
@@ -52,7 +51,8 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
         var functionBlock = "";
         for (var i = fromF; i <= toF; i++) {
             functionBlock += Functions[i] ? "●" : "○";
-        } 
+        }
+
         return functionBlock;
     }
 
@@ -62,8 +62,9 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
         BitValues = 0;
         for (var func = start; func <= end; func++) {
             Functions[func] = dataByte.GetBit(func - start);
-            BitValues = BitValues.SetBit(func - start, Functions[func]);
+            BitValues       = BitValues.SetBit(func - start, Functions[func]);
         }
+
         return true;
     }
 
@@ -71,19 +72,18 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
         if (Address != other.Address) return false;
-        if (Group != other?.Group) return false;
-        return !Functions.Where((t, i) => t != other?.Functions[i]).Any();
+        if (Group != other.Group) return false;
+        return !Functions.Where((t, i) => t != other.Functions[i]).Any();
     }
 
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((FunctionsMessage)obj);
+        return obj.GetType() == GetType() && Equals((FunctionsMessage)obj);
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Address,(int)Group, Functions);
+        return HashCode.Combine(Address, (int)Group, Functions);
     }
 }
 
@@ -97,5 +97,5 @@ public enum FunctionsGroupEnum {
     F37F44,
     F45F52,
     F53F60,
-    F61F68,
+    F61F68
 }

@@ -74,7 +74,7 @@ public class PacketData(byte[] packetData) : IEquatable<PacketData> {
     /// Returns the number of elements in the Data Packet
     /// </summary>
     public int Elements => _packetData.Length;
-    
+
     /// <summary>
     /// Check if the data in the packet is at least as long as length
     /// </summary>
@@ -83,7 +83,7 @@ public class PacketData(byte[] packetData) : IEquatable<PacketData> {
     public bool IsAtLeastLength(int length) {
         return _packetData.Length >= length;
     }
-    
+
     /// <summary>
     /// Check if the packet is valid by performing a checksum calculation.
     /// XOR bytes 1 & 2 and then XOR the result with the next byte through
@@ -100,15 +100,13 @@ public class PacketData(byte[] packetData) : IEquatable<PacketData> {
 
     public bool Equals(PacketData? other) {
         if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return _packetData.Equals(other._packetData);
+        return ReferenceEquals(this, other) || _packetData.Equals(other._packetData);
     }
 
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((PacketData)obj);
+        return obj.GetType() == GetType() && Equals((PacketData)obj);
     }
 
     public override int GetHashCode() {

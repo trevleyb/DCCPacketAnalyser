@@ -1,5 +1,3 @@
-using DCCPacketAnalyser.Analyser.Helpers;
-
 namespace DCCPacketAnalyser.Analyser.Base;
 
 public interface IPacketMessage {

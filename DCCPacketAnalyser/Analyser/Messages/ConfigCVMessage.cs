@@ -3,24 +3,24 @@ using DCCPacketAnalyser.Analyser.Helpers;
 
 namespace DCCPacketAnalyser.Analyser.Messages;
 
-public class ConfigCVMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<ConfigCVMessage> {
-    
-    public ConfigCVTypeEnum Type { get; init; }
-    public int CvNumber          { get; init; }
-    public byte CvValue          { get; init; }
-    
-    public ConfigCVMessage(IPacketMessage packet, ConfigCVTypeEnum type, int cvNumber, byte cvValue) : this(packet) {
-        Type = type;
+public class ConfigCvMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<ConfigCvMessage> {
+    public ConfigCvTypeEnum Type     { get; }
+    public int              CvNumber { get; }
+    public byte             CvValue  { get; }
+
+    public ConfigCvMessage(IPacketMessage packet, ConfigCvTypeEnum type, int cvNumber, byte cvValue) : this(packet) {
+        Type     = type;
         CvNumber = cvNumber;
-        CvValue = cvValue;
-    }
-    
-    public override string Summary => $"{AddressAsString} CV{CvNumber}={CvValue}"; 
-    public override string ToString() {
-        return FormatHelper.FormatMessage("CONFIG(CV)", base.ToString(), PacketData, ("Operation",Type.ToString()),("CvNumber", CvNumber), ("CvValue", CvValue) );
+        CvValue  = cvValue;
     }
 
-    public bool Equals(ConfigCVMessage? other) {
+    public override string Summary => $"{AddressAsString} CV{CvNumber}={CvValue}";
+
+    public override string ToString() {
+        return FormatHelper.FormatMessage("CONFIG(CV)", base.ToString(), PacketData, ("Operation", Type.ToString()), ("CvNumber", CvNumber), ("CvValue", CvValue));
+    }
+
+    public bool Equals(ConfigCvMessage? other) {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
         if (Address != other.Address) return false;
@@ -30,8 +30,7 @@ public class ConfigCVMessage(IPacketMessage packet) : PacketMessage(packet.Packe
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((ConfigCVMessage)obj);
+        return obj.GetType() == GetType() && Equals((ConfigCvMessage)obj);
     }
 
     public override int GetHashCode() {
@@ -39,8 +38,8 @@ public class ConfigCVMessage(IPacketMessage packet) : PacketMessage(packet.Packe
     }
 }
 
-public enum ConfigCVTypeEnum {
-    Verify, 
+public enum ConfigCvTypeEnum {
+    Verify,
     Write,
     BitManipulate
 }

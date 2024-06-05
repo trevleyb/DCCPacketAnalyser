@@ -4,25 +4,25 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class AccessoryMessage(IPacketMessage packet, AccessoryStateEnum state) : PacketMessage(packet.PacketData, AddressTypeEnum.Accessory, packet.Address), IEquatable<AccessoryMessage> {
-    public AccessoryStateEnum State { get; init; } = state;
+    public AccessoryStateEnum State { get; } = state;
 
-    public override string Summary => $"{AddressAsString}{State switch {AccessoryStateEnum.On => "N", AccessoryStateEnum.Off => "R", _ => "?"}}"; 
+    public override string Summary => $"{AddressAsString}{State switch { AccessoryStateEnum.Normal => "N", AccessoryStateEnum.Reversed => "R", _ => "?" }}";
+
     public override string ToString() {
-        return FormatHelper.FormatMessage("ACCESSORY", base.ToString(), PacketData, ("State",state.ToString()) );
+        return FormatHelper.FormatMessage("ACCESSORY", base.ToString(), PacketData, ("State", State.ToString()));
     }
 
     public bool Equals(AccessoryMessage? other) {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        if (Address != other?.Address) return false;
+        if (Address != other.Address) return false;
         return State == other.State;
     }
 
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((AccessoryMessage)obj);
+        return obj.GetType() == GetType() && Equals((AccessoryMessage)obj);
     }
 
     public override int GetHashCode() {
@@ -32,7 +32,5 @@ public class AccessoryMessage(IPacketMessage packet, AccessoryStateEnum state) :
 
 public enum AccessoryStateEnum {
     Normal   = 0,
-    Reversed = 1,
-    Off      = 0,
-    On       = 1
+    Reversed = 1
 }

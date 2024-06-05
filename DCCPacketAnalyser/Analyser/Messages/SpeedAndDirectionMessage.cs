@@ -3,15 +3,15 @@ using DCCPacketAnalyser.Analyser.Helpers;
 
 namespace DCCPacketAnalyser.Analyser.Messages;
 
-public class SpeedAndDirectionMessage (IPacketMessage packet, byte speed, DirectionEnum direction, bool isRestricted = false) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<SpeedAndDirectionMessage> {
+public class SpeedAndDirectionMessage(IPacketMessage packet, byte speed, DirectionEnum direction, bool isRestricted = false) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<SpeedAndDirectionMessage> {
+    public DirectionEnum Direction       { get; } = direction;
+    public byte          Speed           { get; } = speed;
+    public bool          RestrictedSpeed { get; } = isRestricted;
 
-    public DirectionEnum Direction       { get; init; } = direction;
-    public byte          Speed           { get; init; } = speed;
-    public bool          RestrictedSpeed { get; init; } = isRestricted;
+    public override string Summary => $"{AddressAsString} S{Speed}{Direction switch { DirectionEnum.Forward => "F", DirectionEnum.Reverse => "R", DirectionEnum.Stop => "S", DirectionEnum.EStop => "E", _ => "?" }}";
 
-    public override string Summary => $"{AddressAsString} S{Speed}{Direction switch {DirectionEnum.Forward => "F", DirectionEnum.Reverse => "R", DirectionEnum.Stop => "S", DirectionEnum.EStop => "E", _ => "?"}}"; 
     public override string ToString() {
-        return FormatHelper.FormatMessage("SPEED & DIR", base.ToString(), PacketData, ("Speed",Speed),("Direction",Direction.ToString()),("IsRestricted?",RestrictedSpeed.ToString()) );
+        return FormatHelper.FormatMessage("SPEED & DIR", base.ToString(), PacketData, ("Speed", Speed), ("Direction", Direction.ToString()), ("IsRestricted?", RestrictedSpeed.ToString()));
     }
 
     public bool Equals(SpeedAndDirectionMessage? other) {
@@ -24,8 +24,7 @@ public class SpeedAndDirectionMessage (IPacketMessage packet, byte speed, Direct
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((SpeedAndDirectionMessage)obj);
+        return obj.GetType() == GetType() && Equals((SpeedAndDirectionMessage)obj);
     }
 
     public override int GetHashCode() {

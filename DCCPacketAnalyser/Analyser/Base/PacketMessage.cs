@@ -1,11 +1,9 @@
-using DCCPacketAnalyser.Analyser.Helpers;
-
 namespace DCCPacketAnalyser.Analyser.Base;
 
 public class PacketMessage(PacketData packetData, AddressTypeEnum addressType, int address) : IPacketMessage {
-    public PacketData      PacketData  { get; }                 = packetData;
-    public int             Address     { get; protected init; } = address;
-    public AddressTypeEnum AddressType { get; protected init; } = addressType;
+    public PacketData      PacketData  { get; } = packetData;
+    public int             Address     { get; } = address;
+    public AddressTypeEnum AddressType { get; } = addressType;
 
     public virtual string Detailed => ToString();
     public virtual string Summary  => AddressAsString;
@@ -25,14 +23,13 @@ public class PacketMessage(PacketData packetData, AddressTypeEnum addressType, i
         };
 }
 
-
 public enum AddressTypeEnum {
-    Idle        = 'I',
-    Broadcast   = 'B',
-    Short       = 'S',
-    Long        = 'L',
-    Accessory   = 'A',
-    Signal      = 'G',
-    Error       = '?',
-    Duplicate   = '!'
+    Idle      = 'I',
+    Broadcast = 'B',
+    Short     = 'S',
+    Long      = 'L',
+    Accessory = 'A',
+    Signal    = 'G',
+    Error     = '?',
+    Duplicate = '!'
 }

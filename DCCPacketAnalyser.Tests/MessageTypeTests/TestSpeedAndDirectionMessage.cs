@@ -6,7 +6,6 @@ namespace DCCPacketAnalyser.Tests.MessageTypeTests;
 
 [TestFixture]
 public class TestSpeedAndDirectionMessage {
-
     [TestCase(new byte[] { 0x43, 0x3F, 0x82, 0xFE }, typeof(SpeedAndDirectionMessage), 67, 1, DirectionEnum.Forward)]
     [TestCase(new byte[] { 0x43, 0x3F, 0x83, 0xFF }, typeof(SpeedAndDirectionMessage), 67, 2, DirectionEnum.Forward)]
     [TestCase(new byte[] { 0x43, 0x3F, 0x84, 0xF8 }, typeof(SpeedAndDirectionMessage), 67, 3, DirectionEnum.Forward)]
@@ -29,7 +28,7 @@ public class TestSpeedAndDirectionMessage {
     [TestCase(new byte[] { 0x43, 0x3F, 0xEF, 0x93 }, typeof(SpeedAndDirectionMessage), 67, 110, DirectionEnum.Forward)]
     [TestCase(new byte[] { 0x43, 0x3F, 0xF9, 0x85 }, typeof(SpeedAndDirectionMessage), 67, 120, DirectionEnum.Forward)]
     [TestCase(new byte[] { 0x43, 0x3F, 0xFF, 0x83 }, typeof(SpeedAndDirectionMessage), 67, 126, DirectionEnum.Forward)]
-    [TestCase(new byte[] { 0xC4, 0xD2, 0x3F, 0x8B, 0xA2, }, typeof(SpeedAndDirectionMessage), 1234, 10, DirectionEnum.Forward)]
+    [TestCase(new byte[] { 0xC4, 0xD2, 0x3F, 0x8B, 0xA2 }, typeof(SpeedAndDirectionMessage), 1234, 10, DirectionEnum.Forward)]
     [TestCase(new byte[] { 0x43, 0x61, 0x22 }, typeof(SpeedAndDirectionMessage), 67, 0, DirectionEnum.Stop)]
     [TestCase(new byte[] { 0xC4, 0xD2, 0x60, 0x76 }, typeof(SpeedAndDirectionMessage), 1234, 0, DirectionEnum.Stop)]
     public void Test(byte[] packet, Type expectedType, int address, int speed, DirectionEnum direction) {

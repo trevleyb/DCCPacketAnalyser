@@ -7,19 +7,19 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 /// Represents if we got an error working out the packet data. The message indicates
 /// why we had an error and the original data is included. 
 /// </summary>
-public class ErrorMessage : PacketMessage, IPacketMessage, IEquatable<ErrorMessage> {
-    public string Message { get; init; }
+public class ErrorMessage : PacketMessage, IEquatable<ErrorMessage> {
+    public string Message { get; }
 
     public ErrorMessage(IPacketMessage packetMessage, string message) : base(packetMessage.PacketData, packetMessage.AddressType, packetMessage.Address) {
-        Message     = message;
+        Message = message;
     }
 
     public ErrorMessage(PacketData packetData, string message) : base(packetData, AddressTypeEnum.Error, 0) {
-        Message     = message;
+        Message = message;
     }
 
     public override string ToString() {
-        return FormatHelper.FormatMessage("ERROR", base.ToString(), PacketData, ("Message",Message) );
+        return FormatHelper.FormatMessage("ERROR", base.ToString(), PacketData, ("Message", Message));
     }
 
     public bool Equals(ErrorMessage? other) {
@@ -31,8 +31,7 @@ public class ErrorMessage : PacketMessage, IPacketMessage, IEquatable<ErrorMessa
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((ErrorMessage)obj);
+        return obj.GetType() == GetType() && Equals((ErrorMessage)obj);
     }
 
     public override int GetHashCode() {

@@ -3,10 +3,12 @@ using DCCPacketAnalyser.Analyser.Base;
 namespace DCCPacketAnalyser.Analyser.Helpers;
 
 public class MessageTracker {
-    private Dictionary<Type, MessageData> _messages = new Dictionary<Type, MessageData>();
+    private readonly Dictionary<Type, MessageData> _messages = new();
 
-    public int Count(IPacketMessage message) => _messages[message.GetType()]?.Count ?? 0; 
-    
+    public int Count(IPacketMessage message) {
+        return _messages[message.GetType()]?.Count ?? 0;
+    }
+
     public bool IsMessageDuplicated(IPacketMessage message) {
         if (_messages.ContainsKey(message.GetType())) {
             _messages[message.GetType()].Count++;
@@ -15,6 +17,7 @@ public class MessageTracker {
             _messages[message.GetType()].Message = message;
             return false;
         }
+
         _messages.Add(message.GetType(), new MessageData(message));
         return false;
     }
@@ -22,5 +25,5 @@ public class MessageTracker {
 
 public class MessageData(IPacketMessage message) {
     public IPacketMessage Message { get; set; } = message;
-    public int            Count   { get; set; } = 0;
+    public int            Count   { get; set; }
 }

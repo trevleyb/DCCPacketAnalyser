@@ -6,9 +6,10 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 public class ControlMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<ControlMessage> {
     public ControlMessageTypeEnum MessageType { get; init; }
 
-    public override string Summary     => $"{AddressAsString} {MessageType}"; 
+    public override string Summary => $"{AddressAsString} {MessageType}";
+
     public override string ToString() {
-        return FormatHelper.FormatMessage("CONTROL MSG", base.ToString(), PacketData, ("Control Type",MessageType.ToString()) );
+        return FormatHelper.FormatMessage("CONTROL MSG", base.ToString(), PacketData, ("Control Type", MessageType.ToString()));
     }
 
     public bool Equals(ControlMessage? other) {
@@ -21,12 +22,11 @@ public class ControlMessage(IPacketMessage packet) : PacketMessage(packet.Packet
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((ControlMessage)obj);
+        return obj.GetType() == GetType() && Equals((ControlMessage)obj);
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine((int)Address, (int)MessageType);
+        return HashCode.Combine(Address, (int)MessageType);
     }
 }
 
@@ -38,5 +38,5 @@ public enum ControlMessageTypeEnum {
     AdvancedAddressing,
     Reset,
     HardReset,
-    FactoryTest,
+    FactoryTest
 }

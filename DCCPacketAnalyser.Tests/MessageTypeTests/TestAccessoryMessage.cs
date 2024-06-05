@@ -6,7 +6,6 @@ namespace DCCPacketAnalyser.Tests.MessageTypeTests;
 
 [TestFixture]
 public class TestAccessoryMessage {
-    
     [TestCase(new byte[] { 0x81, 0xF9, 0x78 }, typeof(AccessoryMessage), 1, AccessoryStateEnum.Normal)]
     [TestCase(new byte[] { 0x81, 0xF8, 0x79 }, typeof(AccessoryMessage), 1, AccessoryStateEnum.Reversed)]
     public void Test(byte[] packet, Type expectedType, int address, AccessoryStateEnum state) {

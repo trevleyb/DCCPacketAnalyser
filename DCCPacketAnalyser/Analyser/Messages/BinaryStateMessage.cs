@@ -4,11 +4,12 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class BinaryStateMessage(IPacketMessage packet, BinaryStateTypeEnum state) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<BinaryStateMessage> {
-    public BinaryStateTypeEnum State   { get; init; } = state;
+    public BinaryStateTypeEnum State { get; } = state;
 
-    public override string Summary => $"{AddressAsString}{State}"; 
+    public override string Summary => $"{AddressAsString}{State}";
+
     public override string ToString() {
-        return FormatHelper.FormatMessage("BINARY STATE", base.ToString(), PacketData );
+        return FormatHelper.FormatMessage("BINARY STATE", base.ToString(), PacketData);
     }
 
     public bool Equals(BinaryStateMessage? other) {
@@ -21,16 +22,15 @@ public class BinaryStateMessage(IPacketMessage packet, BinaryStateTypeEnum state
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((BinaryStateMessage)obj);
+        return obj.GetType() == GetType() && Equals((BinaryStateMessage)obj);
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine((int)Address,(int)State);
+        return HashCode.Combine(Address, (int)State);
     }
 }
 
 public enum BinaryStateTypeEnum {
-    Long, 
+    Long,
     Short
 }

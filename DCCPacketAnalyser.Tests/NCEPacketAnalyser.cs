@@ -6,8 +6,8 @@ using DCCPacketAnalyser.Analyser.Base;
 namespace DCCPacketAnalyser.Tests;
 
 public class NCEPacketAnalyser {
-
     public delegate void PacketAnalysedEvent(IPacketMessage packetMessage);
+
     public event PacketAnalyser.PacketAnalysedEvent? PacketAnalysed;
 
     private          string        _lastMessage     = string.Empty;
@@ -15,13 +15,11 @@ public class NCEPacketAnalyser {
     private          string        _bufferRemainder = string.Empty;
 
     public void Run() {
-        var cts = new CancellationTokenSource();
+        var cts    = new CancellationTokenSource();
         var result = ReadSerialAndProcessMessages(cts);
-        
     }
 
-    
-    private Task ReadSerialAndProcessMessages (CancellationTokenSource cts) {
+    private Task ReadSerialAndProcessMessages(CancellationTokenSource cts) {
         using var serialPort = new SerialPort();
         serialPort.PortName = "/dev/tty.usbserial-11420";
         serialPort.BaudRate = 38400;
@@ -31,7 +29,7 @@ public class NCEPacketAnalyser {
         serialPort.NewLine  = "0x0D";
         try {
             serialPort.Open();
-            
+
             // Only need to do send these the first time as with NCE it keeps these values
             // -----------------------------------------------------------------------------
             SendPacketAnalyzerCommand(serialPort, "H2"); // We need Verbose Mode or Hex Mode? 
@@ -40,7 +38,7 @@ public class NCEPacketAnalyser {
             SendPacketAnalyzerCommand(serialPort, "L+"); // We want Loco commands
             SendPacketAnalyzerCommand(serialPort, "R+"); // We do not need RESET commands
             SendPacketAnalyzerCommand(serialPort, "S+"); // We want Signal commands
-            
+
             var packetAnalyser = new PacketAnalyser();
             packetAnalyser.PacketAnalysed += message => PacketAnalysed?.Invoke(message);
             Debug.WriteLine("Reading Packets from Analyzer.");
@@ -55,12 +53,13 @@ public class NCEPacketAnalyser {
                     }
                 }
             }, cancellationToken);
-            
+
             // Start the main loop
             while (!cancellationToken.IsCancellationRequested) {
                 if (serialPort.BytesToRead > 0) {
                     AddToQueue(serialPort.ReadExisting());
                 }
+
                 ProcessQueue(packetAnalyser);
             }
         } catch (Exception ex) {
@@ -68,6 +67,7 @@ public class NCEPacketAnalyser {
         } finally {
             serialPort.Close();
         }
+
         Debug.WriteLine("Finished.");
         return Task.CompletedTask;
     }
@@ -77,17 +77,17 @@ public class NCEPacketAnalyser {
             if (_lastMessage != message) {
                 var decodedMessage = packetAnalyser.Decode(message);
             }
+
             _lastMessage = message;
         }
     }
 
-    IEnumerable<string> GetQueuedMessages() {
+    private IEnumerable<string> GetQueuedMessages() {
         while (_messageQueue.Any()) {
             yield return _messageQueue.Dequeue();
         }
     }
 
-    
     private void AddToQueue(string buffer) {
         var delimiters = new[] { "\r", "\n", "\r\n", "\n\r" };
         buffer = _bufferRemainder + buffer;
@@ -107,9 +107,8 @@ public class NCEPacketAnalyser {
             }
         }
     }
-    
-    private static void SendPacketAnalyzerCommand(SerialPort serialPort, string command) {
 
+    private static void SendPacketAnalyzerCommand(SerialPort serialPort, string command) {
         //A[+/-] Accessory packets on/off
         //H[0-7] Hex        mode 0-7 0=ICC mode 
         //I[+/-] idle       packets on/off     

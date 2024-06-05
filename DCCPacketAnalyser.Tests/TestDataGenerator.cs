@@ -12,10 +12,10 @@ namespace DCCPacketAnalyser.Tests;
 
 [TestFixture]
 public class TestDataGenerator {
+    private Dictionary<Type, Dictionary<int, IPacketMessage>> _data = new();
 
-    private Dictionary<Type,Dictionary<int, IPacketMessage>> _data = new();
-    
-    [Test] [Ignore("Skip as only for live testing")]
+    [Test]
+    [Ignore("Skip as only for live testing")]
     public void Run() {
         var analyser = new NCEPacketAnalyser();
         analyser.PacketAnalysed += AnalyserOnPacketAnalysed;
@@ -27,12 +27,11 @@ public class TestDataGenerator {
         foreach (var msgType in _data) {
             Debug.WriteLine("MSG=>" + msgType.Key.ToString());
             foreach (var packetMessage in msgType.Value) {
-
                 var sb = new StringBuilder();
                 AppendTestData(sb, packetMessage.Value.PacketData);
-                
+
                 switch (packetMessage.Value) {
-                case ConfigCVMessage configCvMessage:
+                case ConfigCvMessage configCvMessage:
                     // [TestCase(new byte[] { 0x81, 0x71, 0x0A, 0xFA }, typeof(ConfigCVMessage), 1, 10, 10)]
                     sb.Append("typeof(ConfigCVMessage), ");
                     sb.Append(configCvMessage.Address + ", ");
@@ -43,7 +42,7 @@ public class TestDataGenerator {
                     // [TestCase(new byte[] { 0x81, 0x71, 0x0A, 0xFA }, typeof(AccessoryMessage), 1, 10)]
                     sb.Append("typeof(AccessoryMessage), ");
                     sb.Append(accessoryMessage.Address + ", ");
-                    sb.Append("AccessoryStateEnum." + accessoryMessage.State + ")]");                    
+                    sb.Append("AccessoryStateEnum." + accessoryMessage.State + ")]");
                     break;
                 case SpeedAndDirectionMessage speedAndDirectionMessage:
                     // [TestCase(new byte[] { 0x81, 0x71, 0x0A, 0xFA }, typeof(SpeedAndDirectionMessage), 1, 1, DirectionEnum.Stop)]
@@ -66,6 +65,7 @@ public class TestDataGenerator {
                     sb.Append(functionMessage.BitValues + ")]");
                     break;
                 }
+
                 sb.AppendLine();
                 Debug.WriteLine(sb.ToString());
             }
@@ -73,13 +73,14 @@ public class TestDataGenerator {
     }
 
     private void AppendTestData(StringBuilder sb, PacketData data) {
-        bool first = true;
+        var first = true;
         sb.Append("[TestCase(new byte[] { ");
-        for (int i = 0; i < data.Elements; i++) {
+        for (var i = 0; i < data.Elements; i++) {
             if (!first) sb.Append(", ");
             sb.Append($" 0x{data.GetAt(i):X2}");
             first = false;
         }
+
         sb.Append(" }, ");
     }
 
@@ -90,6 +91,7 @@ public class TestDataGenerator {
         if (!_data.ContainsKey(packetMessage.GetType())) {
             _data.Add(packetMessage.GetType(), new Dictionary<int, IPacketMessage>());
         }
+
         if (!_data[packetMessage.GetType()].ContainsKey(packetMessage.GetHashCode())) {
             _data[packetMessage.GetType()].Add(packetMessage.GetHashCode(), packetMessage);
         }

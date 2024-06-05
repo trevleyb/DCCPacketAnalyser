@@ -22,7 +22,7 @@ public class TestSignalAddress {
                 var checkSum    = (byte)packetBytes.Take(packetBytes.Length - 1).Aggregate(0, (current, t) => current ^ t);
                 packetBytes[^1] = checkSum;
                 var packet  = new PacketData(packetBytes);
-                var message = decoder.DeterminePacketType(packet);
+                var message = PacketAnalyser.DeterminePacketType(packet);
                 Assert.That(message, Is.Not.Null, "Packet Message should not be null unless an error occurred.");
                 Assert.That(message, Is.InstanceOf<IPacketMessage>(), "Should not be possible as all results are IPacketMessage");
                 Assert.That(message, Is.TypeOf<PacketMessage>(), "Return type, with this range should always be a Signal Message");

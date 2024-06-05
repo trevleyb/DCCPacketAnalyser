@@ -4,18 +4,18 @@ using DCCPacketAnalyser.Analyser.Helpers;
 namespace DCCPacketAnalyser.Analyser.Messages;
 
 public class MomentumMessage(IPacketMessage packet) : PacketMessage(packet.PacketData, packet.AddressType, packet.Address), IEquatable<MomentumMessage> {
-    
-    public MomentumTypeEnum Type  { get; init; }
-    public byte             Value { get; init; }       
-    
+    public MomentumTypeEnum Type  { get; }
+    public byte             Value { get; }
+
     public MomentumMessage(IPacketMessage packet, MomentumTypeEnum type, byte value) : this(packet) {
-        Type = type;
+        Type  = type;
         Value = value;
     }
-    
-    public override string Summary => $"{AddressAsString} {Type}:{Value}"; 
+
+    public override string Summary => $"{AddressAsString} {Type}:{Value}";
+
     public override string ToString() {
-        return FormatHelper.FormatMessage("MOMENTUM", base.ToString(), PacketData,("Type",Type.ToString()),("Value",Value));
+        return FormatHelper.FormatMessage("MOMENTUM", base.ToString(), PacketData, ("Type", Type.ToString()), ("Value", Value));
     }
 
     public bool Equals(MomentumMessage? other) {
@@ -28,17 +28,16 @@ public class MomentumMessage(IPacketMessage packet) : PacketMessage(packet.Packe
     public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((MomentumMessage)obj);
+        return obj.GetType() == GetType() && Equals((MomentumMessage)obj);
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(Address,(int)Type, Value);
+        return HashCode.Combine(Address, (int)Type, Value);
     }
 }
 
 public enum MomentumTypeEnum {
-    Acceleration = 23, 
+    Acceleration = 23,
     Deceleration = 24,
-    Lock = 0
+    Lock         = 0
 }
