@@ -6,7 +6,7 @@ public class MessageTracker {
     private readonly Dictionary<Type, MessageData> _messages = new();
 
     public int Count(IPacketMessage message) {
-        return _messages[message.GetType()]?.Count ?? 0;
+        return _messages[message.GetType()].Count;
     }
 
     public bool IsMessageDuplicated(IPacketMessage message) {

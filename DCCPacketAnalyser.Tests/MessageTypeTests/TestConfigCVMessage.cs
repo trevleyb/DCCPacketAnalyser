@@ -5,7 +5,7 @@ using DCCPacketAnalyser.Analyser.Messages;
 namespace DCCPacketAnalyser.Tests.MessageTypeTests;
 
 [TestFixture]
-public class TestConfigCVMessage {
+public class TestConfigCvMessage {
     [TestCase(new byte[] { 0xC4, 0xD2, 0xEC, 0x02, 0x30, 0xC8 }, typeof(ConfigCvMessage), 1234, 3, 48)]
     [TestCase(new byte[] { 0xC4, 0xD2, 0xEC, 0x03, 0x30, 0xC9 }, typeof(ConfigCvMessage), 1234, 4, 48)]
     [TestCase(new byte[] { 0xC4, 0xD2, 0xEC, 0x02, 0x00, 0xF8 }, typeof(ConfigCvMessage), 1234, 3, 0)]

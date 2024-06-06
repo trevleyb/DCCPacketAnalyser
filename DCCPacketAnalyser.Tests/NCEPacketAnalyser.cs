@@ -16,7 +16,7 @@ public class NCEPacketAnalyser {
 
     public void Run() {
         var cts    = new CancellationTokenSource();
-        var result = ReadSerialAndProcessMessages(cts);
+        _ = ReadSerialAndProcessMessages(cts);
     }
 
     private Task ReadSerialAndProcessMessages(CancellationTokenSource cts) {
@@ -75,7 +75,7 @@ public class NCEPacketAnalyser {
     private void ProcessQueue(PacketAnalyser packetAnalyser) {
         foreach (var message in GetQueuedMessages()) {
             if (_lastMessage != message) {
-                var decodedMessage = packetAnalyser.Decode(message);
+                _ = packetAnalyser.Decode(message);
             }
 
             _lastMessage = message;

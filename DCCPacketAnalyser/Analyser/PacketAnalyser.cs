@@ -41,7 +41,7 @@ public class PacketAnalyser {
     /// <param name="packet">The packet to decode as a PacketData object.</param>
     /// <returns>The decoded packet message.</returns>
     /// <exception cref="Exception">Thrown when invalid packet data is consistently received.</exception>
-    public IPacketMessage Decode(PacketData packet) {
+    private IPacketMessage Decode(PacketData packet) {
         // Sometimes we will get corrupt data coming through, so we need to check for this.
         // If it happens consecutively more than 10 times, assume we have an issue and 
         // throw an exception, otherwise just ignore the packet and move onto the next one. 
@@ -78,21 +78,29 @@ public class PacketAnalyser {
     /// <returns>A message of type IPacketMessage</returns>
     /// <exception cref="IndexOutOfRangeException"></exception>
     internal static IPacketMessage DeterminePacketType(PacketData packetData) {
-        
+
         // Validate that we can access the Packet Array without an Index Out of Range
         // --------------------------------------------------------------------------
         var typeByte = packetData.First(); // Get Byte #1
         var dataByte = packetData.Peek();  // Get Byte #2 but leave it ready for further processing.
 
-        if (typeByte == 0b11111111) return new IdleMessage(packetData);
-        if (typeByte == 0b00000000) return new PacketMessage(packetData, AddressTypeEnum.Broadcast, 0);
+        return typeByte switch {
+            0b11111111 => new IdleMessage(packetData),
+            0b00000000 => new PacketMessage(packetData, AddressTypeEnum.Broadcast, 0),
+            _          => DetermineAddressType(packetData, typeByte, dataByte)
+        };
+    }
+
+    private static IPacketMessage DetermineAddressType(PacketData packetData, byte typeByte, byte dataByte) {
 
         // If the most significant bites are 11 and the remaining bits are NOT 111111 then 
         // we require the 2nd byte to calculate the address.
         // ---------------------------------------------------------------------------------
         var shouldBeLongAddress = (typeByte & 0b11000000) == 0b11000000 && (typeByte & 0b00111111) != 0b00111111;
+
         int address;
         switch ((typeByte & 0b11000000) >> 6) {
+        
         // Short Address Decoder is represented as 00xxxxx0 or 01xxxxx0 where xxxxx0 is the address
         // ----------------------------------------------------------------------------------------
         case 0b00 or 0b01:
@@ -126,7 +134,7 @@ public class PacketAnalyser {
         }
     }
 
-    private IPacketMessage ProcessRemainingPacket(IPacketMessage packetMessage) {
+    private static IPacketMessage ProcessRemainingPacket(IPacketMessage packetMessage) {
         return packetMessage.AddressType switch {
             AddressTypeEnum.Accessory => ProcessAccessoryPacket(packetMessage),
             AddressTypeEnum.Signal    => ProcessSignalPacket(packetMessage),
@@ -178,13 +186,13 @@ public class PacketAnalyser {
             0b101 => FunctionGroupTwoInstructions(packetMessage, dataByte),
             0b110 => ExtendedFunctions(packetMessage, dataByte),
             0b111 => ConfigurationVariableAccess(packetMessage, dataByte),
-            _     => throw new ArgumentOutOfRangeException()
+            _     => throw new ArgumentOutOfRangeException(nameof(packetMessage),"Invalid Decoder Packet Message. This should not occur.")
         };
 
         return message;
     }
 
-    internal static IPacketMessage DecoderAndConsistControl(IPacketMessage packetMessage, byte dataByte) {
+    private static IPacketMessage DecoderAndConsistControl(IPacketMessage packetMessage, byte dataByte) {
         // Format: xxx0CCCF
         // If the first bit of C is 0 it is a Decoder control message
         // If the first bit of C is 1 it is a Consist control message
@@ -213,7 +221,7 @@ public class PacketAnalyser {
         };
     }
 
-    internal static IPacketMessage AdvancedOperationInstructions(IPacketMessage packetMessage, byte dataByte) {
+    private static IPacketMessage AdvancedOperationInstructions(IPacketMessage packetMessage, byte dataByte) {
         var speed = (byte)(packetMessage.PacketData.Next() & 0b01111111);
         return dataByte switch {
             0b00011100 => // 28 Speed Step Control        
@@ -236,7 +244,7 @@ public class PacketAnalyser {
         };
     }
 
-    internal static IPacketMessage SpeedAndDirection(IPacketMessage packetMessage, byte dataByte, DirectionEnum expectedDirection) {
+    private static SpeedAndDirectionMessage SpeedAndDirection(IPacketMessage packetMessage, byte dataByte, DirectionEnum expectedDirection) {
         var speed = (byte)(((dataByte & 0B00001111) << 1) - 3 + (dataByte.GetBit(4) ? 1 : 0));
         var direction = speed switch {
             253 => DirectionEnum.Stop,
@@ -249,18 +257,18 @@ public class PacketAnalyser {
         return new SpeedAndDirectionMessage(packetMessage, speed, direction);
     }
 
-    internal static IPacketMessage FunctionGroupOneInstructions(IPacketMessage packetMessage, byte dataByte) {
+    private static FunctionsMessage FunctionGroupOneInstructions(IPacketMessage packetMessage, byte dataByte) {
         return new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F0F4);
     }
 
-    internal static IPacketMessage FunctionGroupTwoInstructions(IPacketMessage packetMessage, byte dataByte) {
+    private static FunctionsMessage FunctionGroupTwoInstructions(IPacketMessage packetMessage, byte dataByte) {
         return dataByte.GetBit(4)
             ? // F5-F8
             new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F5F8)
             : new FunctionsMessage(packetMessage, dataByte, FunctionsGroupEnum.F9F12);
     }
 
-    internal static IPacketMessage ExtendedFunctions(IPacketMessage packetMessage, byte instByte) {
+    private static IPacketMessage ExtendedFunctions(IPacketMessage packetMessage, byte instByte) {
         //var functions = new FunctionsMessage(packetMessage);
         var dataByte = packetMessage.PacketData.Next();
         return (instByte & 0b00011111) switch {
@@ -277,7 +285,7 @@ public class PacketAnalyser {
         };
     }
 
-    internal static IPacketMessage ConfigurationVariableAccess(IPacketMessage packetMessage, byte dataByte) {
+    private static IPacketMessage ConfigurationVariableAccess(IPacketMessage packetMessage, byte dataByte) {
         // Format for short form is xxx1CCCC DDDDDDDD
         // Format for long form is xxx0CCVV VVVVVVVV DDDDDDDD
         if (dataByte.GetBit(4)) {

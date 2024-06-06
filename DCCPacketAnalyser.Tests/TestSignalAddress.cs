@@ -1,6 +1,5 @@
 using DCCPacketAnalyser.Analyser;
 using DCCPacketAnalyser.Analyser.Base;
-using DCCPacketAnalyser.Analyser.Messages;
 
 namespace DCCPacketAnalyser.Tests;
 
@@ -12,7 +11,6 @@ public class TestSignalAddress {
         //[TestCase(new byte[] {0x83,0x73,0x06,0xF6}, 10, 6)]
         //[TestCase(new byte[] {0x83,0x77,0x01,0xF5}, 12, 1)]
 
-        var  decoder    = new PacketAnalyser();
         byte firstByte  = 0x81; // Starting data for Signal number 1
         byte secondByte = 0x71; // Sequence goes 71,73,75,77 then repeats
         var  address    = 1;

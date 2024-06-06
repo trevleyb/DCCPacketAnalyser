@@ -1,9 +1,4 @@
 using System.Diagnostics;
-using System.IO.Ports;
-using DCCPacketAnalyser;
-using DCCPacketAnalyser.Analyser;
-using DCCPacketAnalyser.Analyser.Helpers;
-using NUnit.Framework;
 
 namespace DCCPacketAnalyser.Tests;
 

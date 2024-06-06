@@ -6,8 +6,8 @@ namespace DCCPacketAnalyser.Analyser.Messages;
 public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
     private int                _from;
     private int                _to;
+    private bool[]             Functions { get; } = new bool[69];
     public  FunctionsGroupEnum Group     { get; }
-    public  bool[]             Functions { get; } = new bool[69];
     public  byte               BitValues { get; private set; }
 
     public FunctionsMessage(IPacketMessage packet, byte dataByte, FunctionsGroupEnum group) : base(packet.PacketData, packet.AddressType, packet.Address) {
@@ -46,6 +46,7 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
     /// <param name="fromF">First Function Number (0)</param>
     /// <param name="toF">Last Function Number (68)</param>
     /// <returns>A string representing the state of the functions. </returns>
+    // ReSharper disable once MemberCanBePrivate.Global
     public string OutputFunctions(int fromF, int toF) {
         if (fromF < 0 || fromF > Functions.Length - 1 || toF < 0 || toF > Functions.Length - 1 || toF < fromF) return "--------";
         var functionBlock = "";

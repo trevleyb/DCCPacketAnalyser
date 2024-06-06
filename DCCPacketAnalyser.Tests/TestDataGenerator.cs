@@ -1,12 +1,7 @@
 using System.Diagnostics;
-using System.IO.Ports;
 using System.Text;
-using DCCPacketAnalyser;
-using DCCPacketAnalyser.Analyser;
 using DCCPacketAnalyser.Analyser.Base;
-using DCCPacketAnalyser.Analyser.Helpers;
 using DCCPacketAnalyser.Analyser.Messages;
-using NUnit.Framework;
 
 namespace DCCPacketAnalyser.Tests;
 
@@ -25,7 +20,7 @@ public class TestDataGenerator {
 
     private void DumpTestData() {
         foreach (var msgType in _data) {
-            Debug.WriteLine("MSG=>" + msgType.Key.ToString());
+            Debug.WriteLine("MSG=>" + msgType.Key);
             foreach (var packetMessage in msgType.Value) {
                 var sb = new StringBuilder();
                 AppendTestData(sb, packetMessage.Value.PacketData);

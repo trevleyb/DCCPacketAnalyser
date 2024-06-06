@@ -1,6 +1,5 @@
 using DCCPacketAnalyser.Analyser;
 using DCCPacketAnalyser.Analyser.Base;
-using DCCPacketAnalyser.Analyser.Helpers;
 using DCCPacketAnalyser.Analyser.Messages;
 
 namespace DCCPacketAnalyser.Tests;
@@ -27,9 +26,6 @@ public class PacketAnalyserTest {
         var decoded = decoder.Decode(packet) as AccessoryMessage;
         Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded, Is.TypeOf<AccessoryMessage>());
-
-        decoded = decoded as AccessoryMessage;
-        Assert.That(decoded, Is.Not.Null);
         Assert.That(decoded.AddressType, Is.EqualTo(AddressTypeEnum.Accessory));
         Assert.That(decoded.Address, Is.EqualTo(address));
         Console.WriteLine(decoded.ToString());

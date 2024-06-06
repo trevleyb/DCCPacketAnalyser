@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using DCCPacketAnalyser.Analyser.Helpers;
 
 namespace DCCPacketAnalyser.Tests;
 

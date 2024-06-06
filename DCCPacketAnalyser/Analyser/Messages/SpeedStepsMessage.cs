@@ -41,7 +41,6 @@ public class SpeedStepsMessage(IPacketMessage packet) : PacketMessage(packet.Pac
 }
 
 public enum SpeedStepsEnum {
-    Unknown  = 0,
     Steps14  = 14,
     Steps28  = 28,
     Steps128 = 128
