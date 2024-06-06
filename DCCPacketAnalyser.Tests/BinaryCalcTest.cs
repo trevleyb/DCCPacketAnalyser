@@ -1,4 +1,3 @@
-
 namespace DCCPacketAnalyser.Tests;
 
 [TestFixture]

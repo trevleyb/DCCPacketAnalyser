@@ -100,7 +100,7 @@ public class PacketData(byte[] packetData) : IEquatable<PacketData> {
 
     public bool Equals(PacketData? other) {
         if (ReferenceEquals(null, other)) return false;
-        return ReferenceEquals(this, other) || _packetData.Equals(other._packetData);
+        return ReferenceEquals(this, other) || _packetData.SequenceEqual(other._packetData);
     }
 
     public override bool Equals(object? obj) {
@@ -110,6 +110,6 @@ public class PacketData(byte[] packetData) : IEquatable<PacketData> {
     }
 
     public override int GetHashCode() {
-        return HashCode.Combine(_packetData);
+        return _packetData.Aggregate(19, (current, element) => current * 31 + element.GetHashCode());
     }
 }

@@ -15,7 +15,7 @@ public class NCEPacketAnalyser {
     private          string        _bufferRemainder = string.Empty;
 
     public void Run() {
-        var cts    = new CancellationTokenSource();
+        var cts = new CancellationTokenSource();
         _ = ReadSerialAndProcessMessages(cts);
     }
 

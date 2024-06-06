@@ -1,6 +1,11 @@
 namespace DCCPacketAnalyser.Analyser.Base;
 
 public class PacketMessage(PacketData packetData, AddressTypeEnum addressType, int address) : IPacketMessage {
+    // Only used for Testing
+    internal PacketMessage(PacketData packetData) : this(packetData, AddressTypeEnum.Unknown, 0) {
+        PacketData = packetData;
+    }
+
     public PacketData      PacketData  { get; } = packetData;
     public int             Address     { get; } = address;
     public AddressTypeEnum AddressType { get; } = addressType;
@@ -12,7 +17,7 @@ public class PacketMessage(PacketData packetData, AddressTypeEnum addressType, i
         return $"{AddressAsString}";
     }
 
-    protected string AddressAsString =>
+    protected internal string AddressAsString =>
         AddressType switch {
             AddressTypeEnum.Short     => $"S{Address:D4}",
             AddressTypeEnum.Long      => $"L{Address:D4}",
@@ -31,5 +36,6 @@ public enum AddressTypeEnum {
     Accessory = 'A',
     Signal    = 'G',
     Error     = '?',
-    Duplicate = '!'
+    Duplicate = '!',
+    Unknown   = 'U'
 }

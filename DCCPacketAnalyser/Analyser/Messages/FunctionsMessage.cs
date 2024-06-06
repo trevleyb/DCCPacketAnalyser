@@ -46,6 +46,7 @@ public class FunctionsMessage : PacketMessage, IEquatable<FunctionsMessage> {
     /// <param name="fromF">First Function Number (0)</param>
     /// <param name="toF">Last Function Number (68)</param>
     /// <returns>A string representing the state of the functions. </returns>
+
     // ReSharper disable once MemberCanBePrivate.Global
     public string OutputFunctions(int fromF, int toF) {
         if (fromF < 0 || fromF > Functions.Length - 1 || toF < 0 || toF > Functions.Length - 1 || toF < fromF) return "--------";
