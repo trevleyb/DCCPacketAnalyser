@@ -4,6 +4,15 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>TrevLey.DCCPacketAnalyser</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Trevor Leybourne</Authors>
+        <Company>Trevor Leybourne</Company>
+        <Description>A utility library for analysing DCC Packet Data from Hardware</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/trevleyb/DCCPacketAnalyser</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/trevleyb/DCCPacketAnalyser</RepositoryUrl>
     </PropertyGroup>
-
+    
 </Project>
