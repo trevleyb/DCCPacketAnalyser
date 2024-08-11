@@ -41,6 +41,6 @@ jobs:
         run: dotnet pack --configuration Release --no-build --output ./nupkg
 
       - name: Publish to GitHub Packages
-        run: dotnet nuget push ./nupkg/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push ./nupkg/*.nupkg --source "https://nuget.pkg.github.com/trevleyb/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
