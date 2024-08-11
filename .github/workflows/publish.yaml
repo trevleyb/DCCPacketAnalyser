@@ -17,7 +17,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x' # Specify the .NET version you are using
+          dotnet-version: '8.x.x' # Specify the .NET version you are using
+
+      - name: Clean
+        run: dotnet clean
 
       - name: Restore dependencies
         run: dotnet restore
@@ -26,7 +29,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity detailed
 
       - name: Publish test results
         uses: actions/upload-artifact@v4
