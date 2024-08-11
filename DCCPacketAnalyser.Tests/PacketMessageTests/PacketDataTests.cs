@@ -131,8 +131,8 @@ public class PacketDataTests {
 
     [Test]
     public void EqualsObject_ReturnsFalse_WhenComparingWithNull() {
-        var    packetData1 = new PacketData(new byte[] { 0x01, 0x02, 0x03 });
-        object packetData2 = null;
+        var     packetData1 = new PacketData(new byte[] { 0x01, 0x02, 0x03 });
+        object? packetData2 = null;
         Assert.That(packetData1.Equals(packetData2), Is.False);
     }
 
